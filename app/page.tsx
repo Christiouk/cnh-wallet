@@ -18,7 +18,6 @@ export default function Page() {
           <p style={{ marginTop: 12 }}>
             Logged in as: {user?.email?.address ?? 'unknown'}
           </p>
-
           <button onClick={logout} style={{ padding: '10px 14px' }}>
             Logout
           </button>
