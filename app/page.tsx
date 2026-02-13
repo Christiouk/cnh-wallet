@@ -1,100 +1,82 @@
-'use client';
+"use client";
 
-import { usePrivy } from '@privy-io/react-auth';
+import { useEffect, useState } from "react";
+import { usePrivy } from "@privy-io/react-auth";
 
 export default function Page() {
-  const { login, logout, authenticated, user } = usePrivy();
+  const { ready, authenticated, user, logout } = usePrivy();
 
-  const styles = {
-    container: {
-      padding: 40,
-      fontFamily: 'system-ui, sans-serif',
-      background: '#0b0f19',
-      color: 'white',
-      minHeight: '100vh',
-    },
-    card: {
-      background: '#111827',
-      padding: 24,
-      borderRadius: 12,
-      maxWidth: 520,
-      marginTop: 20,
-      boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
-    },
-    button: {
-      padding: '10px 16px',
-      borderRadius: 8,
-      border: 'none',
-      cursor: 'pointer',
-      fontWeight: 600,
-      background: 'white',
-      color: 'black',
-      marginTop: 12,
-    },
-    row: {
-      marginTop: 12,
-    },
-    label: {
-      fontSize: 12,
-      opacity: 0.6,
-    },
-    value: {
-      fontSize: 16,
-      marginTop: 2,
-      wordBreak: 'break-all' as const,
-    },
-  };
+  const [balance, setBalance] = useState<string>("Loading...");
+
+  useEffect(() => {
+    async function fetchBalance() {
+      if (!user?.wallet?.address) return;
+
+      try {
+        const res = await fetch(process.env.NEXT_PUBLIC_ETH_RPC_URL as string, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: 1,
+            method: "eth_getBalance",
+            params: [user.wallet.address, "latest"],
+          }),
+        });
+
+        const data = await res.json();
+
+        if (data?.result) {
+          const eth = parseInt(data.result, 16) / 1e18;
+          setBalance(`${eth.toFixed(4)} ETH`);
+        } else {
+          setBalance("Error fetching balance");
+        }
+      } catch (err) {
+        setBalance("RPC error");
+      }
+    }
+
+    fetchBalance();
+  }, [user]);
+
+  if (!ready) return null;
+
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <p>Not authenticated</p>
+      </div>
+    );
+  }
 
   return (
-    <main style={styles.container}>
-      <h1>CNH Wallet</h1>
+    <div className="min-h-screen bg-black text-white p-10">
+      <div className="max-w-md bg-zinc-900 rounded-2xl p-6 space-y-4">
+        <h1 className="text-xl font-semibold">Client Dashboard</h1>
 
-      {!authenticated ? (
-        <div style={styles.card}>
-          <h2>Welcome to CNH Wallet</h2>
-          <p>Secure access for clients. Authenticate to view your wallet profile and dashboard.</p>
-
-          <button onClick={login} style={styles.button}>
-            Login
-          </button>
+        <div>
+          <p className="text-sm text-zinc-400">Email</p>
+          <p>{user?.email?.address}</p>
         </div>
-      ) : (
-        <div style={styles.card}>
-          <h2>Client Dashboard</h2>
 
-          <div style={styles.row}>
-            <div style={styles.label}>Email</div>
-            <div style={styles.value}>
-              {user?.email?.address || 'No email'}
-            </div>
-          </div>
-
-          <div style={styles.row}>
-            <div style={styles.label}>Status</div>
-            <div style={styles.value}>Authenticated</div>
-          </div>
-
-          {/* WALLET ADDRESS */}
-          <div style={styles.row}>
-            <div style={styles.label}>Wallet</div>
-            <div style={styles.value}>
-              {user?.wallet?.address || 'No wallet connected'}
-            </div>
-          </div>
-
-          {/* CHAIN TYPE */}
-          <div style={styles.row}>
-            <div style={styles.label}>Chain</div>
-            <div style={styles.value}>
-              {user?.wallet?.chainType || '—'}
-            </div>
-          </div>
-
-          <button onClick={logout} style={styles.button}>
-            Logout
-          </button>
+        <div>
+          <p className="text-sm text-zinc-400">Wallet</p>
+          <p className="break-all">{user?.wallet?.address}</p>
         </div>
-      )}
-    </main>
+
+        <div>
+          <p className="text-sm text-zinc-400">Balance</p>
+          <p>{balance}</p>
+        </div>
+
+        <button
+          onClick={logout}
+          className="bg-white text-black px-4 py-2 rounded-lg"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
   );
 }
