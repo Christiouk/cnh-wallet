@@ -15,9 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
           config={{
             loginMethods: ['email', 'wallet'],
-            appearance: {
-              theme: 'dark',
-            },
+            appearance: { theme: 'dark' },
           }}
         >
           {children}
