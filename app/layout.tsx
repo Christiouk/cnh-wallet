@@ -1,6 +1,11 @@
-'use client';
-
+import './globals.css';
+import type { Metadata } from 'next';
 import { PrivyProvider } from '@privy-io/react-auth';
+
+export const metadata: Metadata = {
+  title: 'CNH Wallet',
+  description: 'CNH Wallet',
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,7 +13,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <PrivyProvider
           appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
-          config={{ loginMethods: ['email', 'google', 'apple'] }}
+          config={{
+            loginMethods: ['email', 'wallet'],
+            appearance: {
+              theme: 'dark',
+            },
+          }}
         >
           {children}
         </PrivyProvider>
