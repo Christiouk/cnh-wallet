@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 
 function short(addr?: string) {
@@ -8,10 +8,22 @@ function short(addr?: string) {
   return addr.slice(0, 6) + '…' + addr.slice(-4);
 }
 
-function weiHexToEth(weiHex: string): string {
+// Safe hex -> ETH string (no BigInt, works on older TS targets)
+function weiHexToEthSafe(weiHex: unknown): string {
   try {
-    const wei = parseInt(weiHex, 16);
-    const eth = wei / 1e18;
+    if (typeof weiHex !== 'string') return '0';
+    if (!weiHex.startsWith('0x')) return '0';
+
+    // Parse hex as a decimal string without BigInt:
+    // For balances that fit in JS number range, this is fine.
+    // If very large, it may lose precision, but will not NaN/crash.
+    const weiNumber = Number.parseInt(weiHex, 16);
+    if (!Number.isFinite(weiNumber)) return '0';
+
+    const eth = weiNumber / 1e18;
+    if (!Number.isFinite(eth)) return '0';
+
+    // Show up to 6 dp, trim trailing zeros
     return eth.toFixed(6).replace(/\.?0+$/, '');
   } catch {
     return '0';
@@ -27,8 +39,12 @@ export default function Page() {
   const wallet = wallets?.[0];
   const address = wallet?.address;
 
+  const email = useMemo(() => user?.email?.address ?? 'No email', [user]);
+
   useEffect(() => {
     if (!address) return;
+
+    let cancelled = false;
 
     async function loadBalance() {
       try {
@@ -44,14 +60,21 @@ export default function Page() {
         });
 
         const data = await res.json();
-        const eth = weiHexToEth(data.result);
-        setEthBalance(eth);
+
+        // IMPORTANT: ensure we read `result`
+        const eth = weiHexToEthSafe(data?.result);
+
+        if (!cancelled) setEthBalance(eth);
       } catch {
-        setEthBalance('0');
+        if (!cancelled) setEthBalance('0');
       }
     }
 
     loadBalance();
+
+    return () => {
+      cancelled = true;
+    };
   }, [address]);
 
   if (!ready) {
@@ -80,17 +103,11 @@ export default function Page() {
       <div className="w-full max-w-sm bg-zinc-900 rounded-2xl p-6 shadow-xl space-y-4">
         <h1 className="text-xl font-semibold">CNH Wallet</h1>
 
-        <div className="text-sm text-zinc-400">
-          {user?.email?.address ?? 'No email'}
-        </div>
+        <div className="text-sm text-zinc-400">{email}</div>
 
-        <div className="text-xs text-zinc-500 break-all">
-          {short(address)}
-        </div>
+        <div className="text-xs text-zinc-500 break-all">{short(address)}</div>
 
-        <div className="text-3xl font-semibold">
-          {ethBalance} ETH
-        </div>
+        <div className="text-3xl font-semibold">{ethBalance} ETH</div>
 
         <div className="grid grid-cols-2 gap-3 pt-2">
           <button className="py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">
