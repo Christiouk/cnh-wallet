@@ -3,8 +3,6 @@
 import { useEffect, useState } from 'react';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 
-/* ---------- helpers ---------- */
-
 function short(addr?: string) {
   if (!addr) return '';
   return addr.slice(0, 6) + '…' + addr.slice(-4);
@@ -20,8 +18,6 @@ function weiHexToEth(weiHex: string): string {
   }
 }
 
-/* ---------- component ---------- */
-
 export default function Page() {
   const { ready, authenticated, user, login, logout } = usePrivy();
   const { wallets } = useWallets();
@@ -30,8 +26,6 @@ export default function Page() {
 
   const wallet = wallets?.[0];
   const address = wallet?.address;
-
-  /* ---------- fetch ETH balance ---------- */
 
   useEffect(() => {
     if (!address) return;
@@ -60,17 +54,13 @@ export default function Page() {
     loadBalance();
   }, [address]);
 
-  /* ---------- loading ---------- */
-
   if (!ready) {
     return (
       <main className="h-screen flex items-center justify-center bg-black text-white">
-        Loading…
+        Loading...
       </main>
     );
   }
-
-  /* ---------- logged out ---------- */
 
   if (!authenticated) {
     return (
@@ -85,11 +75,8 @@ export default function Page() {
     );
   }
 
-  /* ---------- logged in UI ---------- */
-
   return (
     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
-      {/* wallet card */}
       <div className="w-full max-w-sm bg-zinc-900 rounded-2xl p-6 shadow-xl space-y-4">
         <h1 className="text-xl font-semibold">CNH Wallet</h1>
 
@@ -97,12 +84,14 @@ export default function Page() {
           {user?.email?.address ?? 'No email'}
         </div>
 
-        <div className="text-xs text-zinc-500 break-all">{short(address)}</div>
+        <div className="text-xs text-zinc-500 break-all">
+          {short(address)}
+        </div>
 
-        {/* balance */}
-        <div className="text-3xl font-semibold">{ethBalance} ETH</div>
+        <div className="text-3xl font-semibold">
+          {ethBalance} ETH
+        </div>
 
-        {/* action buttons (MetaMask style base) */}
         <div className="grid grid-cols-2 gap-3 pt-2">
           <button className="py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700">
             Send
@@ -113,7 +102,6 @@ export default function Page() {
           </button>
         </div>
 
-        {/* logout */}
         <button
           onClick={logout}
           className="w-full mt-4 py-3 rounded-xl bg-white text-black font-medium"
