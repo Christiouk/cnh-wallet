@@ -62,7 +62,7 @@ function shortAddr(addr?: string) {
 }
 
 export default function Page() {
-  const { ready, authenticated, user, login, logout } = usePrivy();
+  const { ready, authenticated, user, login, logout v2 test } = usePrivy();
   const { wallets } = useWallets();
 
   const [balances, setBalances] = useState<Record<string, string>>({});
