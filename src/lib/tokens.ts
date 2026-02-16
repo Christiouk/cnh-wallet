@@ -40,6 +40,14 @@ export const CURATED_TOKENS: Token[] = [
     logoUrl: '/tokens/weth.svg',
     isNative: false,
   },
+  {
+    symbol: 'WBTC',
+    name: 'Wrapped Bitcoin',
+    address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+    decimals: 8,
+    logoUrl: '/tokens/wbtc.svg',
+    isNative: false,
+  },
 ];
 
 export interface TokenBalance extends Token {

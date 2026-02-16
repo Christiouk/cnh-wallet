@@ -14,6 +14,7 @@ function TokenIcon({ symbol, logoUrl }: { symbol: string; logoUrl: string }) {
     USDT: 'from-emerald-500 to-emerald-700',
     USDC: 'from-blue-400 to-blue-600',
     WETH: 'from-indigo-500 to-indigo-700',
+    WBTC: 'from-orange-500 to-orange-700',
   };
 
   return (
