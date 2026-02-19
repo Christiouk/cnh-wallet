@@ -29,7 +29,26 @@ export default function Dashboard() {
   const [showSend, setShowSend] = useState(false);
   const [showBuy, setShowBuy] = useState(false);
   const [showSell, setShowSell] = useState(false);
+  // === LIVE CNH STABLECOIN PRICE WIDGET ===
+  const [cnhPrice, setCnhPrice] = useState<number | null>(null);
+  const [cnhChange, setCnhChange] = useState<number | null>(null);
 
+  useEffect(() => {
+    const fetchCNHPrice = async () => {
+      try {
+        const res = await fetch('https://api.coingecko.com/api/v3/coins/axcnh');
+        const data = await res.json();
+        setCnhPrice(data.market_data.current_price.usd);
+        setCnhChange(data.market_data.price_change_percentage_24h);
+      } catch (err) {
+        console.error('CNH price fetch failed', err);
+      }
+    };
+
+    fetchCNHPrice();
+    const interval = setInterval(fetchCNHPrice, 30000); // refresh every 30s
+    return () => clearInterval(interval);
+  }, []);
   // Get wallet address from Privy
   const walletAddress = (() => {
     // Try embedded wallet first from useWallets
