@@ -1,7 +1,7 @@
 {
-  "name": "CNH Wallet",
-  "short_name": "CNH Wallet",
-  "description": "Secure digital asset management by CNH Financial",
+  "name": "Morsands",
+  "short_name": "Morsands",
+  "description": "Morsands — Your Keys. Your Assets. Your Future.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

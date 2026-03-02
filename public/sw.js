@@ -1,12 +1,12 @@
 /**
- * CNH Wallet — Service Worker
+ * Morsands — Service Worker
  * Provides offline caching for the PWA experience.
  * Strategy: Network-first with cache fallback for pages,
  * Cache-first for static assets.
  */
 
-const CACHE_NAME = 'cnh-wallet-v1';
-const STATIC_CACHE = 'cnh-wallet-static-v1';
+const CACHE_NAME = 'morsands-v1';
+const STATIC_CACHE = 'morsands-static-v1';
 
 // Static assets to pre-cache on install
 const PRECACHE_ASSETS = [

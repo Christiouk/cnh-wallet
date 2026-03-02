@@ -31,7 +31,7 @@ export default function TradeModal({ isOpen, onClose, type }: TradeModalProps) {
             )}
           </div>
           <h4 className="text-base font-semibold text-white mb-2">
-            {isBuy ? 'Buy' : 'Sell'} via CNH Desk
+            {isBuy ? 'Buy' : 'Sell'} via Morsands Desk
           </h4>
           <p className="text-sm text-surface-400 leading-relaxed max-w-xs mx-auto">
             {isBuy

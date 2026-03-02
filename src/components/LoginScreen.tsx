@@ -19,7 +19,7 @@ export default function LoginScreen() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center mx-auto mb-5 shadow-glow-lg">
-            <span className="text-white font-bold text-2xl">C</span>
+            <span className="text-white font-bold text-2xl">M</span>
           </div>
           <h1 className="text-2xl font-bold text-white mb-1">{COMPANY.walletName}</h1>
           <p className="text-surface-400 text-sm">by {COMPANY.name}</p>
@@ -45,8 +45,8 @@ export default function LoginScreen() {
           </button>
 
           <p className="text-xs text-surface-600 text-center mt-4 leading-relaxed">
-            By signing in, you agree to CNH Financial&apos;s terms of service. 
-            Your wallet is secured with institutional-grade encryption.
+            By signing in, you agree to Morsands&apos; terms of service.
+            Your assets are secured with institutional-grade encryption.
           </p>
         </div>
 

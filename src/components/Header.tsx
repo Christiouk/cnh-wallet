@@ -31,7 +31,7 @@ export default function Header({ walletAddress, onRefresh, isRefreshing }: Heade
           <div className="flex items-center gap-3 min-w-0">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-600/20 flex-shrink-0">
-                <span className="text-white font-bold text-sm">C</span>
+                <span className="text-white font-bold text-sm">M</span>
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-lg font-bold text-white leading-tight">{COMPANY.walletName}</h1>

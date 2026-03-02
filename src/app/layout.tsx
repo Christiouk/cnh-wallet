@@ -4,8 +4,8 @@ import PrivyProviderWrapper from '@/providers/PrivyProviderWrapper';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
 
 export const metadata: Metadata = {
-  title: 'CNH Wallet | CNH Financial',
-  description: 'Secure digital asset management by CNH Financial',
+  title: 'Morsands | Self-Custody Wallet',
+  description: 'Morsands — Your Keys. Your Assets. Your Future. Institutional-grade self-custody wallet.',
   manifest: '/manifest.json',
   icons: {
     icon: '/favicon.ico',
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'CNH Wallet',
+    title: 'Morsands',
   },
   formatDetection: {
     telephone: false,
@@ -44,7 +44,7 @@ export default function RootLayout({
         {/* iOS PWA meta tags */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="CNH Wallet" />
+        <meta name="apple-mobile-web-app-title" content="Morsands" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         {/* iOS splash screens */}
         <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />

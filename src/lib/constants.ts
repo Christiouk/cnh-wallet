@@ -1,13 +1,14 @@
 export const CONTACT = {
-  email: 'cryptodesk@cnh.financial',
-  support: 'support@cnh.financial',
+  email: 'desk@morsands.com',
+  support: 'hello@morsands.com',
+  info: 'info@morsands.com',
   whatsapp: '+12027734870',
   whatsappUrl: 'https://wa.me/12027734870',
 } as const;
 
 export const COMPANY = {
-  name: 'CNH Financial',
-  walletName: 'CNH Wallet',
+  name: 'Morsands',
+  walletName: 'Morsands',
   network: 'Ethereum Mainnet',
   chainId: 1,
 } as const;

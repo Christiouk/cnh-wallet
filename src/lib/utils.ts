@@ -5,7 +5,7 @@ export function truncateAddress(address: string, startChars = 6, endChars = 4): 
 }
 
 export function generateReferenceCode(identifier: string): string {
-  if (!identifier) return 'CNH-000000';
+  if (!identifier) return 'MRS-000000';
   const hash = identifier
     .split('')
     .reduce((acc, char) => {
@@ -13,7 +13,7 @@ export function generateReferenceCode(identifier: string): string {
       return ((acc << 5) - acc + code) | 0;
     }, 0);
   const code = Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
-  return `CNH-${code.padStart(8, '0')}`;
+  return `MRS-${code.padStart(8, '0')}`;
 }
 
 export function formatBalance(balance: string, decimals: number = 18): string {

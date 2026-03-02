@@ -7,7 +7,7 @@ export default function LoadingScreen() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center mx-auto mb-4 shadow-glow animate-pulse-slow">
-          <span className="text-white font-bold text-lg">C</span>
+          <span className="text-white font-bold text-lg">M</span>
         </div>
         <p className="text-surface-400 text-sm">{COMPANY.walletName}</p>
         <div className="flex items-center justify-center gap-1 mt-3">

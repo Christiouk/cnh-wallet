@@ -29,26 +29,26 @@ export default function Dashboard() {
   const [showSend, setShowSend] = useState(false);
   const [showBuy, setShowBuy] = useState(false);
   const [showSell, setShowSell] = useState(false);
-  // === LIVE CNH STABLECOIN PRICE WIDGET ===
+  // === LIVE AXCNH STABLECOIN PRICE WIDGET ===
   const [cnhPrice, setCnhPrice] = useState<number | null>(null);
   const [cnhChange, setCnhChange] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchCNHPrice = async () => {
+    const fetchAxCNHPrice = async () => {
       try {
         const res = await fetch('https://api.coingecko.com/api/v3/coins/axcnh');
         const data = await res.json();
         setCnhPrice(data.market_data.current_price.usd);
         setCnhChange(data.market_data.price_change_percentage_24h);
       } catch (err) {
-        console.error('CNH price fetch failed', err);
+        console.error('axCNH price fetch failed', err);
       }
     };
 
-    fetchCNHPrice();
-    const interval = setInterval(fetchCNHPrice, 30000); // refresh every 30s
+    fetchAxCNHPrice();
+    const interval = setInterval(fetchAxCNHPrice, 30000); // refresh every 30s
     return () => clearInterval(interval);
-  }, []);
+  }, [];
   // Get wallet address from Privy
   const walletAddress = (() => {
     // Try embedded wallet first from useWallets
@@ -192,7 +192,7 @@ export default function Dashboard() {
       <footer className="max-w-6xl mx-auto px-4 sm:px-6 py-6 mt-4">
         <div className="border-t border-surface-800/50 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-surface-600">
-            &copy; {new Date().getFullYear()} CNH Financial. All rights reserved.
+            &copy; {new Date().getFullYear()} Morsands. All rights reserved.
           </p>
           <p className="text-xs text-surface-600">
             Ethereum Mainnet &middot; Powered by Privy

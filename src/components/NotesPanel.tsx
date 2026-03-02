@@ -15,7 +15,7 @@ export default function NotesPanel({ referenceCode }: NotesPanelProps) {
         <div className="flex items-start gap-2.5">
           <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-1.5 flex-shrink-0" />
           <p className="text-sm text-surface-300 leading-relaxed">
-            Large-value Buy / Sell / Swap transactions are executed via <strong className="text-white">CNH Desk</strong> (manual back-office review for compliance).
+            Large-value Buy / Sell / Swap transactions are executed via <strong className="text-white">Morsands Desk</strong> (manual back-office review for compliance).
           </p>
         </div>
 
