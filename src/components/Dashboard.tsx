@@ -48,7 +48,7 @@ export default function Dashboard() {
     fetchAxCNHPrice();
     const interval = setInterval(fetchAxCNHPrice, 30000); // refresh every 30s
     return () => clearInterval(interval);
-  }, [];
+  }, []);
   // Get wallet address from Privy
   const walletAddress = (() => {
     // Try embedded wallet first from useWallets
