@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { usePrivy } from '@privy-io/react-auth';
 import { COMPANY, CONTACT } from '@/lib/constants';
 
@@ -85,6 +86,15 @@ export default function Header({ walletAddress, onRefresh, isRefreshing, activeN
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            <Link
+              href="/card"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600/20 hover:bg-brand-600/30 border border-brand-500/30 text-brand-400 hover:text-brand-300 text-xs font-semibold transition-all duration-200"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+              </svg>
+              Get Card
+            </Link>
             <a
               href={CONTACT.whatsappUrl}
               target="_blank"
