@@ -1,27 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import https from 'https';
 
 const GP_API = 'https://api.gnosispay.com';
-
-// mTLS certificate for PSE (card data display)
-const MTLS_CERT = process.env.GNOSIS_PAY_CERT || '';
-const MTLS_KEY = process.env.GNOSIS_PAY_KEY || '';
 
 function gpHeaders(jwt: string) {
   return {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${jwt}`,
   };
-}
-
-// Build an https agent with mTLS for PSE calls
-function getMtlsAgent() {
-  if (!MTLS_CERT || !MTLS_KEY) return undefined;
-  return new https.Agent({
-    cert: MTLS_CERT.replace(/\\n/g, '\n'),
-    key: MTLS_KEY.replace(/\\n/g, '\n'),
-    rejectUnauthorized: true,
-  });
 }
 
 // GET  /api/gnosis-pay/cards          — list active cards (jwt in x-gp-jwt header)
