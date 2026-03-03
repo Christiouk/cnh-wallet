@@ -15,6 +15,7 @@ import ReceiveModal from './ReceiveModal';
 import SendModal from './SendModal';
 import TradeModal from './TradeModal';
 import SwapModal from './SwapModal';
+import PriceTicker from './PriceTicker';
 import { CURATED_TOKENS, TokenBalance } from '@/lib/tokens';
 import { formatBalance, generateReferenceCode } from '@/lib/utils';
 import { usePrices } from '@/hooks/usePrices';
@@ -181,6 +182,9 @@ export default function Dashboard() {
             <NotesPanel referenceCode={referenceCode} />
           </div>
         </div>
+
+        {/* Live Price Ticker */}
+        <PriceTicker prices={prices} loading={pricesLoading} />
 
         {/* Token List with live prices */}
         <TokenList tokens={tokenBalances} isLoading={isLoading} prices={prices} />

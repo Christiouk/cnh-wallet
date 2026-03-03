@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import { TokenBalance } from '@/lib/tokens';
 import { formatBalance } from '@/lib/utils';
 import { PricesMap } from '@/hooks/usePrices';
@@ -9,24 +10,51 @@ interface TokenListProps {
   prices?: PricesMap;
 }
 
-const TOKEN_COLORS: Record<string, { from: string; to: string }> = {
-  ETH:  { from: 'from-blue-500',    to: 'to-blue-700' },
-  WBTC: { from: 'from-orange-500',  to: 'to-orange-700' },
-  USDT: { from: 'from-emerald-500', to: 'to-emerald-700' },
-  USDC: { from: 'from-blue-400',    to: 'to-blue-600' },
-  DAI:  { from: 'from-yellow-500',  to: 'to-yellow-700' },
-  WETH: { from: 'from-indigo-500',  to: 'to-indigo-700' },
-  LINK: { from: 'from-blue-600',    to: 'to-blue-800' },
-  UNI:  { from: 'from-pink-500',    to: 'to-pink-700' },
-  MATIC:{ from: 'from-purple-500',  to: 'to-purple-700' },
-  BNB:  { from: 'from-yellow-400',  to: 'to-yellow-600' },
+const TOKEN_LOGOS: Record<string, string> = {
+  ETH:  '/tokens/eth.png',
+  WBTC: '/tokens/wbtc.png',
+  USDT: '/tokens/usdt.png',
+  USDC: '/tokens/usdc.png',
+  DAI:  '/tokens/dai.png',
+  WETH: '/tokens/eth.png',
+  LINK: '/tokens/link.png',
+  UNI:  '/tokens/uni.png',
+};
+
+const TOKEN_FALLBACK_COLORS: Record<string, string> = {
+  ETH:  'bg-blue-600',
+  WBTC: 'bg-orange-600',
+  USDT: 'bg-emerald-600',
+  USDC: 'bg-blue-500',
+  DAI:  'bg-yellow-600',
+  WETH: 'bg-indigo-600',
+  LINK: 'bg-blue-700',
+  UNI:  'bg-pink-600',
+  MATIC:'bg-purple-600',
+  BNB:  'bg-yellow-500',
 };
 
 function TokenIcon({ symbol }: { symbol: string }) {
-  const colors = TOKEN_COLORS[symbol] || { from: 'from-surface-600', to: 'to-surface-800' };
+  const logo = TOKEN_LOGOS[symbol];
+  const fallbackColor = TOKEN_FALLBACK_COLORS[symbol] || 'bg-surface-700';
   return (
-    <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${colors.from} ${colors.to} flex items-center justify-center shadow-lg flex-shrink-0`}>
-      <span className="text-white text-xs font-bold">{symbol.slice(0, 3)}</span>
+    <div className={`w-10 h-10 rounded-full flex-shrink-0 overflow-hidden shadow-lg ${logo ? 'bg-surface-800/60' : fallbackColor + ' flex items-center justify-center'}`}>
+      {logo ? (
+        <Image
+          src={logo}
+          alt={symbol}
+          width={40}
+          height={40}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            const el = e.currentTarget as HTMLImageElement;
+            el.style.display = 'none';
+            el.parentElement!.classList.add(fallbackColor);
+          }}
+        />
+      ) : (
+        <span className="text-white text-xs font-bold">{symbol.slice(0, 3)}</span>
+      )}
     </div>
   );
 }
