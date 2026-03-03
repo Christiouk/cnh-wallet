@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeNetwork, setActiveNetwork] = useState('ethereum');
 
   // Modal states
   const [showReceive, setShowReceive] = useState(false);
@@ -139,6 +140,8 @@ export default function Dashboard() {
         walletAddress={walletAddress}
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
+        activeNetwork={activeNetwork}
+        onNetworkChange={setActiveNetwork}
       />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
@@ -174,9 +177,8 @@ export default function Dashboard() {
               onSwap={() => setShowSwap(true)}
             />
           </div>
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2">
             <NotesPanel referenceCode={referenceCode} />
-            <ContactPanel />
           </div>
         </div>
 
@@ -187,10 +189,13 @@ export default function Dashboard() {
         {walletAddress && <TransactionHistory walletAddress={walletAddress} />}
 
         {/* Bitcoin Network */}
-        <BitcoinPanel btcUsdPrice={prices['BTC']?.usd || 0} />
+        {activeNetwork === 'bitcoin' && <BitcoinPanel btcUsdPrice={prices['BTC']?.usd || 0} />}
 
         {/* Support Tickets */}
         <SupportTickets />
+
+        {/* Contact — bottom of page */}
+        <ContactPanel />
       </main>
 
       {/* Footer */}

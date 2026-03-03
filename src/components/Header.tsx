@@ -1,37 +1,63 @@
 'use client';
-
-import { usePrivy } from '@privy-io/react-auth';
-import { truncateAddress, copyToClipboard } from '@/lib/utils';
-import { COMPANY, CONTACT } from '@/lib/constants';
 import { useState } from 'react';
+import Image from 'next/image';
+import { usePrivy } from '@privy-io/react-auth';
+import { COMPANY, CONTACT } from '@/lib/constants';
 
 interface HeaderProps {
-  walletAddress: string;
+  walletAddress?: string;
   onRefresh: () => void;
   isRefreshing: boolean;
+  activeNetwork: string;
+  onNetworkChange: (network: string) => void;
 }
 
-export default function Header({ walletAddress, onRefresh, isRefreshing }: HeaderProps) {
+const NETWORKS = [
+  { id: 'ethereum', label: 'Ethereum', short: 'ETH', color: 'text-indigo-400', bg: 'bg-indigo-500/10', border: 'border-indigo-500/30' },
+  { id: 'base', label: 'Base', short: 'Base', color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30' },
+  { id: 'polygon', label: 'Polygon', short: 'MATIC', color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30' },
+  { id: 'arbitrum', label: 'Arbitrum', short: 'ARB', color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30' },
+  { id: 'optimism', label: 'Optimism', short: 'OP', color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30' },
+  { id: 'bsc', label: 'BNB Chain', short: 'BNB', color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/30' },
+  { id: 'bitcoin', label: 'Bitcoin', short: 'BTC', color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/30' },
+];
+
+function truncateAddress(address: string): string {
+  if (!address) return '';
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+export default function Header({ walletAddress, onRefresh, isRefreshing, activeNetwork, onNetworkChange }: HeaderProps) {
   const { logout } = usePrivy();
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = async () => {
-    const success = await copyToClipboard(walletAddress);
-    if (success) {
+  const handleCopy = () => {
+    if (walletAddress) {
+      navigator.clipboard.writeText(walletAddress);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
+  const active = NETWORKS.find(n => n.id === activeNetwork) || NETWORKS[0];
+
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-surface/80 border-b border-surface-800/50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
-        <div className="flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        {/* Top row: logo + address + actions */}
+        <div className="flex items-center justify-between py-3.5">
           {/* Logo & Address */}
           <div className="flex items-center gap-3 min-w-0">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-600/20 flex-shrink-0">
-                <span className="text-white font-bold text-sm">M</span>
+              <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 shadow-lg shadow-brand-600/20">
+                <Image
+                  src="/logo.png"
+                  alt="Morsands"
+                  width={36}
+                  height={36}
+                  className="w-full h-full object-cover"
+                  priority
+                />
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-lg font-bold text-white leading-tight">{COMPANY.walletName}</h1>
@@ -98,7 +124,40 @@ export default function Header({ walletAddress, onRefresh, isRefreshing }: Heade
             </button>
           </div>
         </div>
+
+        {/* Network switcher row */}
+        <div className="pb-3 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-1.5 min-w-max">
+            {NETWORKS.map(network => {
+              const isActive = activeNetwork === network.id;
+              return (
+                <button
+                  key={network.id}
+                  onClick={() => onNetworkChange(network.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all duration-150 whitespace-nowrap ${
+                    isActive
+                      ? `${network.bg} ${network.border} ${network.color}`
+                      : 'bg-surface-800/40 border-surface-700/20 text-surface-500 hover:text-surface-300 hover:bg-surface-800/60 hover:border-surface-700/40'
+                  }`}
+                >
+                  {network.id === 'bitcoin' ? (
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M23.638 14.904c-1.602 6.43-8.113 10.34-14.542 8.736C2.67 22.05-1.244 15.525.362 9.105 1.962 2.67 8.475-1.243 14.9.358c6.43 1.605 10.342 8.115 8.738 14.548v-.002zm-6.35-4.613c.24-1.59-.974-2.45-2.64-3.03l.54-2.153-1.315-.33-.525 2.107c-.345-.087-.705-.167-1.064-.25l.526-2.127-1.32-.33-.54 2.165c-.285-.067-.565-.132-.84-.2l-1.815-.45-.35 1.407s.975.225.955.236c.535.136.63.486.615.766l-1.477 5.92c-.075.166-.24.406-.614.314.015.02-.96-.24-.96-.24l-.66 1.51 1.71.426.93.242-.54 2.19 1.32.327.54-2.17c.36.1.705.19 1.05.273l-.51 2.154 1.32.33.545-2.19c2.24.427 3.93.257 4.64-1.774.57-1.637-.03-2.58-1.217-3.196.854-.193 1.5-.76 1.68-1.93h.01zm-3.01 4.22c-.404 1.64-3.157.75-4.05.53l.72-2.9c.896.23 3.757.67 3.33 2.37zm.41-4.24c-.37 1.49-2.662.735-3.405.55l.654-2.64c.744.18 3.137.524 2.75 2.084v.006z"/>
+                    </svg>
+                  ) : (
+                    <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-current' : 'bg-surface-600'}`} />
+                  )}
+                  <span className="hidden sm:inline">{network.label}</span>
+                  <span className="sm:hidden">{network.short}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </header>
   );
 }
+
+export { NETWORKS };
+export type { HeaderProps };

@@ -62,7 +62,12 @@ function formatPortfolioUSD(value: number): string {
 }
 
 export default function TokenList({ tokens, isLoading, prices = {} }: TokenListProps) {
-  const totalUSD = tokens.reduce((sum, token) => {
+  // Only show tokens the user actually holds
+  const heldTokens = tokens.filter(
+    (token) => token.balance !== '0' && parseFloat(formatBalance(token.balance, token.decimals)) > 0
+  );
+
+  const totalUSD = heldTokens.reduce((sum, token) => {
     const price = prices[token.symbol]?.usd || 0;
     const balance = parseFloat(formatBalance(token.balance, token.decimals));
     return sum + balance * price;
@@ -87,15 +92,19 @@ export default function TokenList({ tokens, isLoading, prices = {} }: TokenListP
 
       {isLoading ? (
         <div className="divide-y divide-surface-800/30">
-          {[1, 2, 3, 4, 5].map((i) => (
+          {[1, 2, 3].map((i) => (
             <TokenSkeleton key={i} />
           ))}
         </div>
+      ) : heldTokens.length === 0 ? (
+        <div className="px-6 py-10 text-center">
+          <p className="text-sm text-surface-500">No token balances found on this network.</p>
+          <p className="text-xs text-surface-600 mt-1">Deposit assets or switch network to view your portfolio.</p>
+        </div>
       ) : (
         <div className="divide-y divide-surface-800/30">
-          {tokens.map((token) => {
+          {heldTokens.map((token) => {
             const formatted = formatBalance(token.balance, token.decimals);
-            const hasBalance = token.balance !== '0' && parseFloat(formatted) > 0;
             const price = prices[token.symbol];
             const usdValue = price ? parseFloat(formatted) * price.usd : null;
             const change24h = price?.usd_24h_change;
@@ -128,14 +137,12 @@ export default function TokenList({ tokens, isLoading, prices = {} }: TokenListP
                 </div>
 
                 <div className="text-right flex-shrink-0 ml-4">
-                  <p className={`text-sm font-semibold ${hasBalance ? 'text-white' : 'text-surface-600'}`}>
-                    {hasBalance ? formatted + ' ' + token.symbol : '—'}
+                  <p className="text-sm font-semibold text-white">
+                    {formatted} {token.symbol}
                   </p>
-                  {hasBalance && usdValue !== null && usdValue > 0 ? (
+                  {usdValue !== null && usdValue > 0 && (
                     <p className="text-xs text-surface-400 mt-0.5">{formatPortfolioUSD(usdValue)}</p>
-                  ) : !hasBalance ? (
-                    <p className="text-xs text-surface-700 mt-0.5">No balance</p>
-                  ) : null}
+                  )}
                 </div>
               </div>
             );
@@ -146,7 +153,9 @@ export default function TokenList({ tokens, isLoading, prices = {} }: TokenListP
       {!isLoading && (
         <div className="px-6 py-3 border-t border-surface-800/30 flex items-center justify-between">
           <p className="text-xs text-surface-600">Prices via CoinGecko &middot; Updated every 60s</p>
-          <span className="text-xs text-surface-700">{tokens.length} assets</span>
+          {heldTokens.length > 0 && (
+            <span className="text-xs text-surface-700">{heldTokens.length} asset{heldTokens.length !== 1 ? 's' : ''}</span>
+          )}
         </div>
       )}
     </div>

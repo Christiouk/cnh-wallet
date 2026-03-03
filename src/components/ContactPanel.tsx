@@ -2,17 +2,15 @@
 
 import { useState } from 'react';
 import { CONTACT } from '@/lib/constants';
-import { copyToClipboard } from '@/lib/utils';
+
 
 export default function ContactPanel() {
   const [copiedEmail, setCopiedEmail] = useState(false);
 
-  const handleCopyEmail = async () => {
-    const success = await copyToClipboard(CONTACT.email);
-    if (success) {
-      setCopiedEmail(true);
-      setTimeout(() => setCopiedEmail(false), 2000);
-    }
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText(CONTACT.email);
+    setCopiedEmail(true);
+    setTimeout(() => setCopiedEmail(false), 2000);
   };
 
   return (
@@ -22,32 +20,7 @@ export default function ContactPanel() {
       </div>
 
       <div className="divide-y divide-surface-800/30">
-        {/* Email */}
-        <div className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-brand-500/10 flex items-center justify-center flex-shrink-0">
-              <svg className="w-4 h-4 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-xs text-surface-500">Email</p>
-              <p className="text-sm font-medium text-white">{CONTACT.email}</p>
-            </div>
-          </div>
-          <button
-            onClick={handleCopyEmail}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-              copiedEmail
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                : 'bg-surface-800/60 text-surface-300 hover:text-white hover:bg-surface-700/60 border border-surface-700/30'
-            }`}
-          >
-            {copiedEmail ? 'Copied!' : 'Copy'}
-          </button>
-        </div>
-
-        {/* WhatsApp */}
+        {/* Support Email */}
         <div className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
@@ -57,20 +30,20 @@ export default function ContactPanel() {
             </div>
             <div>
               <p className="text-xs text-surface-500">Live Chat</p>
-              <p className="text-sm font-medium text-white">{CONTACT.whatsapp}</p>
+              <p className="text-sm font-medium text-white">WhatsApp</p>
             </div>
           </div>
           <a
             href={CONTACT.whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-800/60 text-surface-300 hover:text-white hover:bg-surface-700/60 border border-surface-700/30 transition-all duration-200"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/15 border border-emerald-500/20 transition-all duration-200"
           >
             Open
           </a>
         </div>
 
-        {/* Support */}
+        {/* Support Email */}
         <div className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
@@ -80,15 +53,27 @@ export default function ContactPanel() {
             </div>
             <div>
               <p className="text-xs text-surface-500">Support</p>
-              <p className="text-sm font-medium text-white">{CONTACT.support}</p>
+              <p className="text-sm font-medium text-white">{CONTACT.email}</p>
             </div>
           </div>
-          <a
-            href={`mailto:${CONTACT.support}`}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-800/60 text-surface-300 hover:text-white hover:bg-surface-700/60 border border-surface-700/30 transition-all duration-200"
-          >
-            Email
-          </a>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleCopyEmail}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                copiedEmail
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  : 'bg-surface-800/60 text-surface-300 hover:text-white hover:bg-surface-700/60 border border-surface-700/30'
+              }`}
+            >
+              {copiedEmail ? 'Copied!' : 'Copy'}
+            </button>
+            <a
+              href={`mailto:${CONTACT.email}`}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-800/60 text-surface-300 hover:text-white hover:bg-surface-700/60 border border-surface-700/30 transition-all duration-200"
+            >
+              Email
+            </a>
+          </div>
         </div>
       </div>
     </div>
