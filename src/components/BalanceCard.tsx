@@ -1,13 +1,19 @@
 'use client';
-
 import { COMPANY } from '@/lib/constants';
 
 interface BalanceCardProps {
   totalEthBalance: string;
+  totalUsdValue?: number;
   isLoading: boolean;
 }
 
-export default function BalanceCard({ totalEthBalance, isLoading }: BalanceCardProps) {
+function formatUSD(value: number): string {
+  return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+export default function BalanceCard({ totalEthBalance, totalUsdValue, isLoading }: BalanceCardProps) {
+  const hasUsdValue = totalUsdValue !== undefined && totalUsdValue > 0;
+
   return (
     <div className="glass-card p-6 sm:p-8 relative overflow-hidden">
       {/* Background decoration */}
@@ -27,15 +33,30 @@ export default function BalanceCard({ totalEthBalance, isLoading }: BalanceCardP
           </div>
         ) : (
           <div className="mt-2">
-            <div className="flex items-baseline gap-2">
-              <span className="text-4xl sm:text-5xl font-bold text-white tracking-tight">
-                {totalEthBalance}
-              </span>
-              <span className="text-xl sm:text-2xl font-semibold text-surface-400">ETH</span>
-            </div>
-            <p className="text-surface-500 text-sm mt-2">
-              ETH + tokens will appear here once the address holds assets.
-            </p>
+            {hasUsdValue ? (
+              <>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl sm:text-5xl font-bold text-white tracking-tight">
+                    {formatUSD(totalUsdValue!)}
+                  </span>
+                </div>
+                <p className="text-surface-400 text-sm mt-2 font-medium">
+                  {totalEthBalance} ETH
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl sm:text-5xl font-bold text-white tracking-tight">
+                    {totalEthBalance}
+                  </span>
+                  <span className="text-xl sm:text-2xl font-semibold text-surface-400">ETH</span>
+                </div>
+                <p className="text-surface-500 text-sm mt-2">
+                  Deposit assets to see your portfolio value.
+                </p>
+              </>
+            )}
           </div>
         )}
       </div>

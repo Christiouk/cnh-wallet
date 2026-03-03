@@ -1,31 +1,32 @@
 'use client';
-
 import { TokenBalance } from '@/lib/tokens';
 import { formatBalance } from '@/lib/utils';
+import { PricesMap } from '@/hooks/usePrices';
 
 interface TokenListProps {
   tokens: TokenBalance[];
   isLoading: boolean;
+  prices?: PricesMap;
 }
 
-function TokenIcon({ symbol, logoUrl }: { symbol: string; logoUrl: string }) {
-  const colors: Record<string, string> = {
-    ETH: 'from-blue-500 to-blue-700',
-    USDT: 'from-emerald-500 to-emerald-700',
-    USDC: 'from-blue-400 to-blue-600',
-    WETH: 'from-indigo-500 to-indigo-700',
-    WBTC: 'from-orange-500 to-orange-700',
-  };
+const TOKEN_COLORS: Record<string, { from: string; to: string }> = {
+  ETH:  { from: 'from-blue-500',    to: 'to-blue-700' },
+  WBTC: { from: 'from-orange-500',  to: 'to-orange-700' },
+  USDT: { from: 'from-emerald-500', to: 'to-emerald-700' },
+  USDC: { from: 'from-blue-400',    to: 'to-blue-600' },
+  DAI:  { from: 'from-yellow-500',  to: 'to-yellow-700' },
+  WETH: { from: 'from-indigo-500',  to: 'to-indigo-700' },
+  LINK: { from: 'from-blue-600',    to: 'to-blue-800' },
+  UNI:  { from: 'from-pink-500',    to: 'to-pink-700' },
+  MATIC:{ from: 'from-purple-500',  to: 'to-purple-700' },
+  BNB:  { from: 'from-yellow-400',  to: 'to-yellow-600' },
+};
 
+function TokenIcon({ symbol }: { symbol: string }) {
+  const colors = TOKEN_COLORS[symbol] || { from: 'from-surface-600', to: 'to-surface-800' };
   return (
-    <div
-      className={`w-10 h-10 rounded-full bg-gradient-to-br ${
-        colors[symbol] || 'from-surface-600 to-surface-800'
-      } flex items-center justify-center shadow-lg flex-shrink-0`}
-    >
-      <span className="text-white text-xs font-bold">
-        {symbol.slice(0, 3)}
-      </span>
+    <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${colors.from} ${colors.to} flex items-center justify-center shadow-lg flex-shrink-0`}>
+      <span className="text-white text-xs font-bold">{symbol.slice(0, 3)}</span>
     </div>
   );
 }
@@ -48,17 +49,45 @@ function TokenSkeleton() {
   );
 }
 
-export default function TokenList({ tokens, isLoading }: TokenListProps) {
+function formatUSD(value: number): string {
+  if (value >= 1000) return '$' + value.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  if (value >= 1) return '$' + value.toFixed(2);
+  if (value >= 0.01) return '$' + value.toFixed(4);
+  return '$' + value.toFixed(6);
+}
+
+function formatPortfolioUSD(value: number): string {
+  if (value === 0) return '$0.00';
+  return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+export default function TokenList({ tokens, isLoading, prices = {} }: TokenListProps) {
+  const totalUSD = tokens.reduce((sum, token) => {
+    const price = prices[token.symbol]?.usd || 0;
+    const balance = parseFloat(formatBalance(token.balance, token.decimals));
+    return sum + balance * price;
+  }, 0);
+
   return (
     <div className="glass-card overflow-hidden">
       <div className="flex items-center justify-between px-6 py-4 border-b border-surface-800/50">
-        <h2 className="text-base font-semibold text-white">Tokens</h2>
-        <span className="text-xs text-surface-500">Ethereum Mainnet</span>
+        <div>
+          <h2 className="text-base font-semibold text-white">Token Portfolio</h2>
+          {!isLoading && totalUSD > 0 && (
+            <p className="text-xs text-surface-500 mt-0.5">
+              Total value:{' '}
+              <span className="text-brand-400 font-medium">{formatPortfolioUSD(totalUSD)}</span>
+            </p>
+          )}
+        </div>
+        <span className="text-xs text-surface-500 bg-surface-800/60 px-2.5 py-1 rounded-full border border-surface-700/30">
+          Multi-Chain
+        </span>
       </div>
 
       {isLoading ? (
         <div className="divide-y divide-surface-800/30">
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3, 4, 5].map((i) => (
             <TokenSkeleton key={i} />
           ))}
         </div>
@@ -66,32 +95,47 @@ export default function TokenList({ tokens, isLoading }: TokenListProps) {
         <div className="divide-y divide-surface-800/30">
           {tokens.map((token) => {
             const formatted = formatBalance(token.balance, token.decimals);
-            const hasBalance = token.balance !== '0';
+            const hasBalance = token.balance !== '0' && parseFloat(formatted) > 0;
+            const price = prices[token.symbol];
+            const usdValue = price ? parseFloat(formatted) * price.usd : null;
+            const change24h = price?.usd_24h_change;
+            const isPositive = change24h !== undefined && change24h >= 0;
 
             return (
               <div
                 key={token.symbol}
-                className="flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors duration-150"
+                className="flex items-center justify-between px-4 py-3.5 hover:bg-white/[0.02] transition-colors duration-150"
               >
-                <div className="flex items-center gap-3">
-                  <TokenIcon symbol={token.symbol} logoUrl={token.logoUrl} />
-                  <div>
-                    <p className="text-sm font-semibold text-white">{token.name}</p>
-                    <p className="text-xs text-surface-500">
-                      {token.symbol}
-                      {token.isNative && (
-                        <span className="ml-1.5 text-surface-600">&middot; Native</span>
+                <div className="flex items-center gap-3 min-w-0">
+                  <TokenIcon symbol={token.symbol} />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-white truncate">{token.name}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                      <span className="text-xs text-surface-500">{token.symbol}</span>
+                      {price && (
+                        <>
+                          <span className="text-surface-700 text-xs">&middot;</span>
+                          <span className="text-xs text-surface-400">{formatUSD(price.usd)}</span>
+                          {change24h !== undefined && (
+                            <span className={`text-xs font-medium ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+                              {isPositive ? '+' : ''}{change24h.toFixed(2)}%
+                            </span>
+                          )}
+                        </>
                       )}
-                    </p>
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className={`text-sm font-semibold ${hasBalance ? 'text-white' : 'text-surface-500'}`}>
-                    {formatted} {token.symbol}
+
+                <div className="text-right flex-shrink-0 ml-4">
+                  <p className={`text-sm font-semibold ${hasBalance ? 'text-white' : 'text-surface-600'}`}>
+                    {hasBalance ? formatted + ' ' + token.symbol : '—'}
                   </p>
-                  {!hasBalance && (
-                    <p className="text-xs text-surface-600">&mdash;</p>
-                  )}
+                  {hasBalance && usdValue !== null && usdValue > 0 ? (
+                    <p className="text-xs text-surface-400 mt-0.5">{formatPortfolioUSD(usdValue)}</p>
+                  ) : !hasBalance ? (
+                    <p className="text-xs text-surface-700 mt-0.5">No balance</p>
+                  ) : null}
                 </div>
               </div>
             );
@@ -100,10 +144,9 @@ export default function TokenList({ tokens, isLoading }: TokenListProps) {
       )}
 
       {!isLoading && (
-        <div className="px-6 py-3 border-t border-surface-800/30">
-          <p className="text-xs text-surface-600">
-            No other assets found yet. Once you deposit tokens to your address, they&apos;ll show here.
-          </p>
+        <div className="px-6 py-3 border-t border-surface-800/30 flex items-center justify-between">
+          <p className="text-xs text-surface-600">Prices via CoinGecko &middot; Updated every 60s</p>
+          <span className="text-xs text-surface-700">{tokens.length} assets</span>
         </div>
       )}
     </div>

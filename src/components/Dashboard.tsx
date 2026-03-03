@@ -9,11 +9,15 @@ import TokenList from './TokenList';
 import ContactPanel from './ContactPanel';
 import NotesPanel from './NotesPanel';
 import SupportTickets from './SupportTickets';
+import TransactionHistory from './TransactionHistory';
+import BitcoinPanel from './BitcoinPanel';
 import ReceiveModal from './ReceiveModal';
 import SendModal from './SendModal';
 import TradeModal from './TradeModal';
+import SwapModal from './SwapModal';
 import { CURATED_TOKENS, TokenBalance } from '@/lib/tokens';
 import { formatBalance, generateReferenceCode } from '@/lib/utils';
+import { usePrices } from '@/hooks/usePrices';
 
 export default function Dashboard() {
   const { user } = usePrivy();
@@ -29,26 +33,11 @@ export default function Dashboard() {
   const [showSend, setShowSend] = useState(false);
   const [showBuy, setShowBuy] = useState(false);
   const [showSell, setShowSell] = useState(false);
-  // === LIVE AXCNH STABLECOIN PRICE WIDGET ===
-  const [cnhPrice, setCnhPrice] = useState<number | null>(null);
-  const [cnhChange, setCnhChange] = useState<number | null>(null);
+  const [showSwap, setShowSwap] = useState(false);
 
-  useEffect(() => {
-    const fetchAxCNHPrice = async () => {
-      try {
-        const res = await fetch('https://api.coingecko.com/api/v3/coins/axcnh');
-        const data = await res.json();
-        setCnhPrice(data.market_data.current_price.usd);
-        setCnhChange(data.market_data.price_change_percentage_24h);
-      } catch (err) {
-        console.error('axCNH price fetch failed', err);
-      }
-    };
+  // Live prices
+  const { prices, isLoading: pricesLoading } = usePrices();
 
-    fetchAxCNHPrice();
-    const interval = setInterval(fetchAxCNHPrice, 30000); // refresh every 30s
-    return () => clearInterval(interval);
-  }, []);
   // Get wallet address from Privy
   const walletAddress = (() => {
     // Try embedded wallet first from useWallets
@@ -135,9 +124,14 @@ export default function Dashboard() {
     setIsRefreshing(false);
   };
 
-  // Get ETH balance for the main display
-  const ethBalance =
-    tokenBalances.find((t) => t.symbol === 'ETH')?.formattedBalance || '0';
+  // Calculate total USD portfolio value
+  const totalUsdValue = tokenBalances.reduce((sum, token) => {
+    const price = prices[token.symbol]?.usd || 0;
+    const balance = parseFloat(formatBalance(token.balance, token.decimals));
+    return sum + balance * price;
+  }, 0);
+
+  const ethBalance = tokenBalances.find((t) => t.symbol === 'ETH')?.formattedBalance || '0';
 
   return (
     <div className="min-h-screen bg-surface">
@@ -167,12 +161,17 @@ export default function Dashboard() {
         {/* Top section: Balance + Notes */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-3 space-y-5">
-            <BalanceCard totalEthBalance={ethBalance} isLoading={isLoading} />
+            <BalanceCard
+              totalEthBalance={ethBalance}
+              totalUsdValue={!pricesLoading ? totalUsdValue : undefined}
+              isLoading={isLoading}
+            />
             <ActionButtons
               onBuy={() => setShowBuy(true)}
               onSell={() => setShowSell(true)}
               onSend={() => setShowSend(true)}
               onReceive={() => setShowReceive(true)}
+              onSwap={() => setShowSwap(true)}
             />
           </div>
           <div className="lg:col-span-2 space-y-6">
@@ -181,8 +180,14 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Token List */}
-        <TokenList tokens={tokenBalances} isLoading={isLoading} />
+        {/* Token List with live prices */}
+        <TokenList tokens={tokenBalances} isLoading={isLoading} prices={prices} />
+
+        {/* Transaction History */}
+        {walletAddress && <TransactionHistory walletAddress={walletAddress} />}
+
+        {/* Bitcoin Network */}
+        <BitcoinPanel btcUsdPrice={prices['BTC']?.usd || 0} />
 
         {/* Support Tickets */}
         <SupportTickets />
@@ -195,7 +200,7 @@ export default function Dashboard() {
             &copy; {new Date().getFullYear()} Morsands. All rights reserved.
           </p>
           <p className="text-xs text-surface-600">
-            Ethereum Mainnet &middot; Powered by Privy
+            Multi-Chain &middot; Powered by Privy
           </p>
         </div>
       </footer>
@@ -207,16 +212,9 @@ export default function Dashboard() {
         walletAddress={walletAddress}
       />
       <SendModal isOpen={showSend} onClose={() => setShowSend(false)} />
-      <TradeModal
-        isOpen={showBuy}
-        onClose={() => setShowBuy(false)}
-        type="buy"
-      />
-      <TradeModal
-        isOpen={showSell}
-        onClose={() => setShowSell(false)}
-        type="sell"
-      />
+      <TradeModal isOpen={showBuy} onClose={() => setShowBuy(false)} type="buy" prices={prices} />
+      <TradeModal isOpen={showSell} onClose={() => setShowSell(false)} type="sell" prices={prices} />
+      <SwapModal isOpen={showSwap} onClose={() => setShowSwap(false)} prices={prices} />
     </div>
   );
 }

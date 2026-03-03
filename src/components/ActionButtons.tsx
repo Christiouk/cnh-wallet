@@ -5,9 +5,10 @@ interface ActionButtonsProps {
   onSell: () => void;
   onSend: () => void;
   onReceive: () => void;
+  onSwap?: () => void;
 }
 
-export default function ActionButtons({ onBuy, onSell, onSend, onReceive }: ActionButtonsProps) {
+export default function ActionButtons({ onBuy, onSell, onSend, onReceive, onSwap }: ActionButtonsProps) {
   const actions = [
     {
       label: 'Buy',
@@ -49,10 +50,20 @@ export default function ActionButtons({ onBuy, onSell, onSend, onReceive }: Acti
       onClick: onReceive,
       color: 'text-purple-400',
     },
+    {
+      label: 'Swap',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+        </svg>
+      ),
+      onClick: onSwap || (() => {}),
+      color: 'text-cyan-400',
+    },
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-3">
+    <div className="grid grid-cols-5 gap-2 sm:gap-3">
       {actions.map((action) => (
         <button
           key={action.label}
