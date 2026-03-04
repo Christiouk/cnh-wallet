@@ -3,6 +3,7 @@
 import { useFundWallet } from '@privy-io/react-auth';
 
 interface ActionButtonsProps {
+  onBuy: () => void;
   onSell: () => void;
   onSend: () => void;
   onReceive: () => void;
@@ -50,6 +51,7 @@ const FundIcon = () => (
 );
 
 export default function ActionButtons({
+  onBuy,
   onSell,
   onSend,
   onReceive,
@@ -58,7 +60,7 @@ export default function ActionButtons({
 }: ActionButtonsProps) {
   const { fundWallet } = useFundWallet();
 
-  const handleBuyOrFund = () => {
+  const handleFund = () => {
     if (walletAddress) {
       fundWallet({ address: walletAddress });
     }
@@ -68,7 +70,7 @@ export default function ActionButtons({
     {
       label: 'Buy',
       icon: <BuyIcon />,
-      onClick: handleBuyOrFund,
+      onClick: onBuy,
       // Emerald green — positive / add funds
       iconBg: 'bg-emerald-500/15 group-hover:bg-emerald-500/25',
       iconColor: 'text-emerald-400',
@@ -118,7 +120,7 @@ export default function ActionButtons({
     {
       label: 'Fund',
       icon: <FundIcon />,
-      onClick: handleBuyOrFund,
+      onClick: handleFund,
       // Rose/pink — funding / card
       iconBg: 'bg-rose-500/15 group-hover:bg-rose-500/25',
       iconColor: 'text-rose-400',

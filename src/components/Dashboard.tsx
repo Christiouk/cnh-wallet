@@ -8,6 +8,7 @@ import ActionButtons from './ActionButtons';
 import TokenList from './TokenList';
 import ContactPanel from './ContactPanel';
 import NotesPanel from './NotesPanel';
+import EarnPanel from './EarnPanel';
 import SupportTickets from './SupportTickets';
 import TransactionHistory from './TransactionHistory';
 import BitcoinPanel from './BitcoinPanel';
@@ -15,6 +16,7 @@ import ReceiveModal from './ReceiveModal';
 import SendModal from './SendModal';
 import TradeModal from './TradeModal';
 import SwapModal from './SwapModal';
+import TransakModal from './TransakModal';
 import PriceTicker from './PriceTicker';
 import { CURATED_TOKENS, TokenBalance } from '@/lib/tokens';
 import { formatBalance, generateReferenceCode } from '@/lib/utils';
@@ -35,6 +37,7 @@ export default function Dashboard() {
   const [showSend, setShowSend] = useState(false);
   const [showSell, setShowSell] = useState(false);
   const [showSwap, setShowSwap] = useState(false);
+  const [showBuy, setShowBuy] = useState(false);
 
   // Live prices
   const { prices, isLoading: pricesLoading } = usePrices();
@@ -170,6 +173,7 @@ export default function Dashboard() {
               isLoading={isLoading}
             />
             <ActionButtons
+              onBuy={() => setShowBuy(true)}
               onSell={() => setShowSell(true)}
               onSend={() => setShowSend(true)}
               onReceive={() => setShowReceive(true)}
@@ -187,6 +191,9 @@ export default function Dashboard() {
 
         {/* Token List with live prices */}
         <TokenList tokens={tokenBalances} isLoading={isLoading} prices={prices} />
+
+        {/* Earn / Yield — Aave v3 */}
+        <EarnPanel walletAddress={walletAddress || undefined} />
 
         {/* Transaction History */}
         {walletAddress && <TransactionHistory walletAddress={walletAddress} />}
@@ -222,6 +229,11 @@ export default function Dashboard() {
       <SendModal isOpen={showSend} onClose={() => setShowSend(false)} />
       <TradeModal isOpen={showSell} onClose={() => setShowSell(false)} type="sell" prices={prices} />
       <SwapModal isOpen={showSwap} onClose={() => setShowSwap(false)} prices={prices} />
+      <TransakModal
+        isOpen={showBuy}
+        onClose={() => setShowBuy(false)}
+        walletAddress={walletAddress || undefined}
+      />
     </div>
   );
 }
