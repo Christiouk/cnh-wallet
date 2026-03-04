@@ -33,7 +33,6 @@ export default function Dashboard() {
   // Modal states
   const [showReceive, setShowReceive] = useState(false);
   const [showSend, setShowSend] = useState(false);
-  const [showBuy, setShowBuy] = useState(false);
   const [showSell, setShowSell] = useState(false);
   const [showSwap, setShowSwap] = useState(false);
 
@@ -171,7 +170,6 @@ export default function Dashboard() {
               isLoading={isLoading}
             />
             <ActionButtons
-              onBuy={() => setShowBuy(true)}
               onSell={() => setShowSell(true)}
               onSend={() => setShowSend(true)}
               onReceive={() => setShowReceive(true)}
@@ -222,7 +220,6 @@ export default function Dashboard() {
         walletAddress={walletAddress}
       />
       <SendModal isOpen={showSend} onClose={() => setShowSend(false)} />
-      <TradeModal isOpen={showBuy} onClose={() => setShowBuy(false)} type="buy" prices={prices} />
       <TradeModal isOpen={showSell} onClose={() => setShowSell(false)} type="sell" prices={prices} />
       <SwapModal isOpen={showSwap} onClose={() => setShowSwap(false)} prices={prices} />
     </div>

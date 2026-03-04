@@ -3,15 +3,12 @@
 import { useFundWallet } from '@privy-io/react-auth';
 
 interface ActionButtonsProps {
-  onBuy: () => void;
   onSell: () => void;
   onSend: () => void;
   onReceive: () => void;
   onSwap?: () => void;
   walletAddress?: string;
 }
-
-// Note: onBuy is kept in props for backward compat but Buy now calls Privy fundWallet directly
 
 // Filled SVG icons — cleaner and more recognisable than outlines at small sizes
 const BuyIcon = () => (

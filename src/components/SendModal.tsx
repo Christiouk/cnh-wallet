@@ -1,11 +1,11 @@
-// Morsands — Send Modal with 0.5% Service Fee
+// Morsands — Send Modal with 1% Service Fee
 
 import { useState, useCallback, useEffect } from 'react';
 import { useSendTransaction, useWallets } from '@privy-io/react-auth';
 import { encodeFunctionData, erc20Abi, parseUnits, isAddress, formatUnits } from 'viem';
 import Modal from './Modal';
 import { CURATED_TOKENS, Token } from '@/lib/tokens';
-import { CONTACT } from '@/lib/constants';
+import { CONTACT, FEE } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 interface SendModalProps {
@@ -15,9 +15,9 @@ interface SendModalProps {
 
 type Step = 'form' | 'confirm' | 'sending' | 'success' | 'error';
 
-// Morsands fee wallet for service fees
-const CNH_FEE_WALLET = '0x24B041fe121587343b4432207870E2aA5cfB5af2';
-const CNH_FEE_PERCENT = 0.5; // 0.5%
+// Fee config — single source of truth from constants.ts
+const CNH_FEE_WALLET = FEE.recipientAddress;
+const CNH_FEE_PERCENT = FEE.percentage; // 1%
 
 export default function SendModal({ isOpen, onClose }: SendModalProps) {
   const { sendTransaction } = useSendTransaction();
@@ -255,7 +255,7 @@ export default function SendModal({ isOpen, onClose }: SendModalProps) {
             {amount && Number(amount) > 0 && (
               <div className="mt-2 p-2.5 rounded-lg bg-surface-900/60 border border-surface-700/30 space-y-1">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-surface-500">Morsands Fee (0.5%)</span>
+                  <span className="text-surface-500">Morsands Fee (1%)</span>
                   <span className="text-amber-400 font-medium">{feeAmount.toFixed(6)} {selectedToken.symbol}</span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
@@ -274,7 +274,7 @@ export default function SendModal({ isOpen, onClose }: SendModalProps) {
               </svg>
               <p className="text-xs text-amber-200/80 leading-relaxed">
                 Transfers are on <strong className="text-amber-200">Ethereum Mainnet</strong>. 
-                A 0.5% service fee applies to all transfers.
+                A 1% service fee applies to all transfers.
               </p>
             </div>
           </div>
@@ -334,7 +334,7 @@ export default function SendModal({ isOpen, onClose }: SendModalProps) {
             </div>
             <div className="border-t border-surface-800/50 pt-2 space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-xs text-surface-500">Morsands Fee (0.5%)</span>
+                <span className="text-xs text-surface-500">Morsands Fee (1%)</span>
                 <span className="text-xs font-medium text-amber-400">-{feeAmount.toFixed(6)} {selectedToken.symbol}</span>
               </div>
               <div className="flex justify-between items-center">
