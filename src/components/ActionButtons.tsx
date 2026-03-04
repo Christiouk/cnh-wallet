@@ -11,6 +11,8 @@ interface ActionButtonsProps {
   walletAddress?: string;
 }
 
+// Note: onBuy is kept in props for backward compat but Buy now calls Privy fundWallet directly
+
 // Filled SVG icons — cleaner and more recognisable than outlines at small sizes
 const BuyIcon = () => (
   <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -51,7 +53,6 @@ const FundIcon = () => (
 );
 
 export default function ActionButtons({
-  onBuy,
   onSell,
   onSend,
   onReceive,
@@ -60,7 +61,7 @@ export default function ActionButtons({
 }: ActionButtonsProps) {
   const { fundWallet } = useFundWallet();
 
-  const handleFund = () => {
+  const handleBuyOrFund = () => {
     if (walletAddress) {
       fundWallet({ address: walletAddress });
     }
@@ -70,7 +71,7 @@ export default function ActionButtons({
     {
       label: 'Buy',
       icon: <BuyIcon />,
-      onClick: onBuy,
+      onClick: handleBuyOrFund,
       // Emerald green — positive / add funds
       iconBg: 'bg-emerald-500/15 group-hover:bg-emerald-500/25',
       iconColor: 'text-emerald-400',
@@ -120,7 +121,7 @@ export default function ActionButtons({
     {
       label: 'Fund',
       icon: <FundIcon />,
-      onClick: handleFund,
+      onClick: handleBuyOrFund,
       // Rose/pink — funding / card
       iconBg: 'bg-rose-500/15 group-hover:bg-rose-500/25',
       iconColor: 'text-rose-400',
