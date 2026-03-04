@@ -176,6 +176,7 @@ export default function Dashboard() {
               onSend={() => setShowSend(true)}
               onReceive={() => setShowReceive(true)}
               onSwap={() => setShowSwap(true)}
+              walletAddress={walletAddress || undefined}
             />
           </div>
           <div className="lg:col-span-2">

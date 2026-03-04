@@ -1,14 +1,25 @@
 'use client';
 
+import { useFundWallet } from '@privy-io/react-auth';
+
 interface ActionButtonsProps {
   onBuy: () => void;
   onSell: () => void;
   onSend: () => void;
   onReceive: () => void;
   onSwap?: () => void;
+  walletAddress?: string;
 }
 
-export default function ActionButtons({ onBuy, onSell, onSend, onReceive, onSwap }: ActionButtonsProps) {
+export default function ActionButtons({ onBuy, onSell, onSend, onReceive, onSwap, walletAddress }: ActionButtonsProps) {
+  const { fundWallet } = useFundWallet();
+
+  const handleFund = () => {
+    if (walletAddress) {
+      fundWallet({ address: walletAddress });
+    }
+  };
+
   const actions = [
     {
       label: 'Buy',
@@ -60,10 +71,20 @@ export default function ActionButtons({ onBuy, onSell, onSend, onReceive, onSwap
       onClick: onSwap || (() => {}),
       color: 'text-cyan-400',
     },
+    {
+      label: 'Fund',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+        </svg>
+      ),
+      onClick: handleFund,
+      color: 'text-yellow-400',
+    },
   ];
 
   return (
-    <div className="grid grid-cols-5 gap-2 sm:gap-3">
+    <div className="grid grid-cols-6 gap-2 sm:gap-3">
       {actions.map((action) => (
         <button
           key={action.label}
