@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePrivy } from '@privy-io/react-auth';
 import { useGnosisPay, GnosisPayStep } from '@/hooks/useGnosisPay';
 
 type CardType = 'virtual' | 'physical';
@@ -110,6 +111,7 @@ const FEATURES = [
 export default function CardPage() {
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
   const { state, startCardApplication, reset } = useGnosisPay();
+  const { ready, authenticated, login } = usePrivy();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,6 +126,32 @@ export default function CardPage() {
   };
 
   const isProcessing = !['idle', 'success', 'error', 'kyc'].includes(state.step);
+
+  // Wallet connection gate — show connect screen if not authenticated
+  if (ready && !authenticated) {
+    return (
+      <div className="min-h-screen bg-[#0a0f1e] flex items-center justify-center p-6">
+        <div className="max-w-md w-full text-center">
+          <Image src="/morsands_icon_final.png" alt="Morsands" width={64} height={64} className="rounded-2xl mx-auto mb-6" />
+          <h1 className="text-2xl font-bold text-white mb-3">Connect Your Wallet</h1>
+          <p className="text-slate-400 text-sm mb-8 leading-relaxed">
+            To apply for the Morsands Card, you need to connect your wallet first.
+            Your wallet address is used to link the card to your Safe smart account via Gnosis Pay.
+          </p>
+          <button onClick={login}
+            className="w-full py-3.5 rounded-xl bg-[#3b82f6] hover:bg-[#2563eb] text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 mb-4">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18-3a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3m18 0V6" />
+            </svg>
+            Connect Wallet to Apply
+          </button>
+          <Link href="/" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
+            ← Back to Wallet
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Success screen
   if (state.step === 'success') {
@@ -327,14 +355,14 @@ export default function CardPage() {
                   <input type="text" required value={form.firstName}
                     onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
                     className="w-full bg-[#1a2035] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
-                    placeholder="Chris" />
+                    placeholder="First name" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-400 mb-1.5">Last Name</label>
                   <input type="text" required value={form.lastName}
                     onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))}
                     className="w-full bg-[#1a2035] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#3b82f6]/50 transition-colors"
-                    placeholder="Holanda" />
+                    placeholder="Last name" />
                 </div>
               </div>
 

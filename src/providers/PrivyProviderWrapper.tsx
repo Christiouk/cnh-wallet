@@ -80,7 +80,7 @@ export default function PrivyProviderWrapper({
           logo: undefined,
           walletChainType: 'ethereum-only',
         },
-        loginMethods: ['email'],
+        loginMethods: ['email', 'google', 'apple'],
         embeddedWallets: {
           ethereum: {
             createOnLogin: 'users-without-wallets',
