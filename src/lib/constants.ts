@@ -6,7 +6,7 @@ export const CONTACT = {
 } as const;
 
 export const COMPANY = {
-  name: 'Morsands',
+  name: 'CNH Financial',
   walletName: 'Morsands Wallet',
   tagline: 'Your Keys. Your Assets. Your Future.',
   network: 'Multi-Chain',
