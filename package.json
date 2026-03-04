@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.13.1",
+    "@transak/ui-js-sdk": "^1.0.0",
     "ethers": "^6.16.0",
     "next": "^14.2.35",
     "qrcode.react": "^3.2.0",
