@@ -1,33 +1,63 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { NextRequest } from 'next/server';
 import { POST } from '../src/app/api/balances/route';
-
-test('balance API distinguishes real zero, RPC rejection and empty contract response', async () => {
-  const originalFetch = global.fetch;
-  const originalRpc = process.env.NEXT_PUBLIC_RPC_URL;
-  const originalError = console.error;
-  process.env.NEXT_PUBLIC_RPC_URL = 'https://rpc.invalid';
-  console.error = () => {}; // Expected RPC failures, no live provider is contacted.
-  const request = () => new NextRequest('https://wallet.invalid/api/balances', {
-    method: 'POST', body: JSON.stringify({ walletAddress: '0x1111111111111111111111111111111111111111',
-      tokens: [{ symbol: 'USDT', address: '0x2222222222222222222222222222222222222222' }] }),
+const walletAddress = '0x1111111111111111111111111111111111111111';
+function request(input: object) {
+  return new Request('https://wallet.invalid/api/balances', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
   });
+}
+test('balance API distinguishes real zero from failed/empty provider data', async () => {
+  const originalFetch = global.fetch;
+  const originalRpc = process.env.ETHEREUM_RPC_URL;
+  process.env.ETHEREUM_RPC_URL = 'https://rpc.invalid';
   try {
-    global.fetch = async () => new Response(JSON.stringify({ result: '0x0' }));
-    const zero = await (await POST(request())).json();
-    assert.equal(zero.balances[0].balance, '0');
-    assert.equal(zero.balances[0].error, undefined);
-    for (const rpcResult of [{ error: { message: 'offline' } }, { result: '0x' }]) {
-      global.fetch = async () => new Response(JSON.stringify(rpcResult));
-      const failed = await (await POST(request())).json();
-      assert.equal(failed.balances[0].balance, null);
-      assert.equal(failed.balances[0].error, 'Failed to fetch balance');
+    for (const value of ['0x0', '0x', null]) {
+      global.fetch = async (_url, init) => {
+        const call = JSON.parse(init!.body as string);
+        return Response.json(
+          call.method === 'eth_chainId'
+            ? { result: '0x1' }
+            : value === null
+              ? { error: { message: 'offline' } }
+              : { result: value },
+        );
+      };
+      const data = await (await POST(request({ walletAddress }))).json();
+      assert.equal(data.balances.length, 3);
+      for (const row of data.balances) {
+        assert.equal(row.balance, value === '0x0' ? '0' : null);
+        assert.equal(Boolean(row.error), value !== '0x0');
+      }
     }
   } finally {
     global.fetch = originalFetch;
-    console.error = originalError;
-    if (originalRpc === undefined) delete process.env.NEXT_PUBLIC_RPC_URL;
-    else process.env.NEXT_PUBLIC_RPC_URL = originalRpc;
+    if (originalRpc === undefined) delete process.env.ETHEREUM_RPC_URL;
+    else process.env.ETHEREUM_RPC_URL = originalRpc;
+  }
+});
+test('balance API rejects malformed addresses, arbitrary token/RPC fields and oversized JSON before RPC', async () => {
+  const originalFetch = global.fetch;
+  let calls = 0;
+  global.fetch = async () => {
+    calls++;
+    throw new Error();
+  };
+  try {
+    for (const input of [
+      { walletAddress: 'bad' },
+      { walletAddress, tokens: [{ symbol: 'USDT', address: walletAddress }] },
+      { walletAddress, rpc: 'https://evil.invalid' },
+    ])
+      assert.equal((await POST(request(input))).status, 400);
+    assert.equal(
+      (await POST(request({ walletAddress: 'x'.repeat(3000) }))).status,
+      413,
+    );
+    assert.equal(calls, 0);
+  } finally {
+    global.fetch = originalFetch;
   }
 });

@@ -5,7 +5,8 @@ import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistratio
 
 export const metadata: Metadata = {
   title: 'Morsands | Self-Custody Wallet',
-  description: 'Morsands — Your Keys. Your Assets. Your Future. Institutional-grade self-custody wallet.',
+  description:
+    'Morsands — Your Keys. Your Assets. Your Future. Ethereum self-custody wallet.',
   manifest: '/manifest.json',
   icons: {
     icon: '/favicon.ico',
@@ -28,8 +29,6 @@ export const viewport: Viewport = {
   themeColor: '#0f1729',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: 'cover',
 };
 
@@ -43,7 +42,10 @@ export default function RootLayout({
       <head>
         {/* iOS PWA meta tags */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
         <meta name="apple-mobile-web-app-title" content="Morsands" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         {/* iOS splash screens */}

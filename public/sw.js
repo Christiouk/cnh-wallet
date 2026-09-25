@@ -5,8 +5,8 @@
  * Cache-first for static assets.
  */
 
-const CACHE_NAME = 'morsands-v1';
-const STATIC_CACHE = 'morsands-static-v1';
+const CACHE_NAME = 'a3-core-v1';
+const STATIC_CACHE = 'a3-core-static-v1';
 
 // Static assets to pre-cache on install
 const PRECACHE_ASSETS = [
@@ -19,7 +19,6 @@ const PRECACHE_ASSETS = [
   '/tokens/eth.svg',
   '/tokens/usdt.svg',
   '/tokens/usdc.svg',
-  '/tokens/weth.svg',
 ];
 
 // Install: pre-cache static assets

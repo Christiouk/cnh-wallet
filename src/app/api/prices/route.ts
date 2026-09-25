@@ -1,79 +1,57 @@
 import { NextResponse } from 'next/server';
-
-const COINGECKO_IDS = [
-  'bitcoin',
-  'ethereum',
-  'wrapped-bitcoin',
-  'tether',
-  'usd-coin',
-  'dai',
-  'weth',
-  'chainlink',
-  'uniswap',
-  'matic-network',
-  'binancecoin',
-];
-
-const SYMBOL_MAP: Record<string, string> = {
-  bitcoin: 'BTC',
-  ethereum: 'ETH',
-  'wrapped-bitcoin': 'WBTC',
-  tether: 'USDT',
-  'usd-coin': 'USDC',
-  dai: 'DAI',
-  weth: 'WETH',
-  chainlink: 'LINK',
-  uniswap: 'UNI',
-  'matic-network': 'MATIC',
-  binancecoin: 'BNB',
-};
-
-let cache: { data: Record<string, any>; timestamp: number } | null = null;
-const CACHE_TTL = 60 * 1000; // 60 seconds
-
-export async function GET() {
+import { CURATED_TOKENS } from '../../../lib/tokens';
+import { failure, guard, jsonFetch } from '../../../lib/server/http';
+export const dynamic = 'force-dynamic';
+let cache: {
+  prices: Record<string, { usd: number; usd_24h_change: number }>;
+  updatedAt: number;
+} | null = null;
+export async function GET(request: Request) {
   try {
-    // Return cached data if fresh
-    if (cache && Date.now() - cache.timestamp < CACHE_TTL) {
-      return NextResponse.json({ prices: cache.data });
-    }
-
-    const ids = COINGECKO_IDS.join(',');
-    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_market_cap=false`;
-
-    const response = await fetch(url, {
-      headers: {
-        'Accept': 'application/json',
-        ...(process.env.COINGECKO_API_KEY
-          ? { 'x-cg-demo-api-key': process.env.COINGECKO_API_KEY }
-          : {}),
+    guard(request, 'prices', 60);
+    if (new URL(request.url).search)
+      return NextResponse.json(
+        {
+          error: { code: 'INVALID_INPUT', message: 'No parameters supported' },
+        },
+        { status: 400 },
+      );
+    if (cache && Date.now() - cache.updatedAt < 60000)
+      return NextResponse.json(cache);
+    const ids = CURATED_TOKENS.map((t) => t.coingeckoId).join(',');
+    const raw = await jsonFetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`,
+      {
+        headers: {
+          Accept: 'application/json',
+          ...(process.env.COINGECKO_API_KEY
+            ? { 'x-cg-demo-api-key': process.env.COINGECKO_API_KEY }
+            : {}),
+        },
       },
-      next: { revalidate: 60 },
-    });
-
-    if (!response.ok) {
-      throw new Error(`CoinGecko API error: ${response.status}`);
+    );
+    const prices: NonNullable<typeof cache>['prices'] = {};
+    for (const token of CURATED_TOKENS) {
+      const price = raw?.[token.coingeckoId!];
+      if (
+        !price ||
+        typeof price.usd !== 'number' ||
+        !Number.isFinite(price.usd) ||
+        price.usd <= 0
+      )
+        throw new Error('Invalid price');
+      prices[token.symbol] = {
+        usd: price.usd,
+        usd_24h_change:
+          typeof price.usd_24h_change === 'number' &&
+          Number.isFinite(price.usd_24h_change)
+            ? price.usd_24h_change
+            : 0,
+      };
     }
-
-    const raw = await response.json();
-
-    // Transform to symbol-keyed map
-    const prices: Record<string, { usd: number; usd_24h_change: number }> = {};
-    for (const [id, data] of Object.entries(raw)) {
-      const symbol = SYMBOL_MAP[id];
-      if (symbol) {
-        prices[symbol] = data as { usd: number; usd_24h_change: number };
-      }
-    }
-
-    cache = { data: prices, timestamp: Date.now() };
-    return NextResponse.json({ prices });
-  } catch (error) {
-    console.error('Prices API error:', error);
-    // Return cached data even if stale on error
-    if (cache) {
-      return NextResponse.json({ prices: cache.data, stale: true });
-    }
-    return NextResponse.json({ prices: {}, error: 'Failed to fetch prices' }, { status: 500 });
+    cache = { prices, updatedAt: Date.now() };
+    return NextResponse.json(cache);
+  } catch (e) {
+    return failure(e);
   }
 }

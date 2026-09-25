@@ -9,11 +9,35 @@ export type TransactionIntent = (
   sender: { address: string; walletId?: string };
   destination: string;
   amountBaseUnits: string;
-  networkCost?: { asset: 'ETH' | 'TRX'; amountBaseUnits: string; energy?: string; bandwidth?: string; sponsored: boolean };
-}
+  networkCost?: {
+    asset: 'ETH' | 'TRX';
+    amountBaseUnits: string;
+    energy?: string;
+    bandwidth?: string;
+    sponsored: boolean;
+  };
+};
 
 export type TransactionState =
-  | { status: 'draft' | 'review' | 'awaiting-signature'; intent: TransactionIntent }
-  | { status: 'submitted'; intent: TransactionIntent; hash: string; submittedAt: number }
-  | { status: 'confirmed'; intent: TransactionIntent; hash: string; confirmedAt: number }
-  | { status: 'failed'; intent: TransactionIntent; hash?: string; reason: string };
+  | {
+      status: 'draft' | 'review' | 'requesting-signature';
+      intent: TransactionIntent;
+    }
+  | {
+      status: 'submitted' | 'confirming';
+      intent: TransactionIntent;
+      hash: string;
+      submittedAt: number;
+    }
+  | {
+      status: 'confirmed';
+      intent: TransactionIntent;
+      hash: string;
+      confirmedAt: number;
+    }
+  | {
+      status: 'failed';
+      intent: TransactionIntent;
+      hash?: string;
+      reason: string;
+    };

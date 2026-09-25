@@ -8,8 +8,17 @@
     "incremental": false,
     "outDir": ".test-build",
     "rootDir": ".",
-    "isolatedModules": false
+    "isolatedModules": false,
+    "jsx": "react-jsx"
   },
-  "include": ["tests/**/*.test.ts", "src/hooks/usePortfolioBalances.ts"],
-  "exclude": ["node_modules", ".next", ".test-build"]
+  "include": [
+    "tests/**/*.test.ts",
+    "src/hooks/usePortfolioBalances.ts",
+    "src/components/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    ".test-build"
+  ]
 }

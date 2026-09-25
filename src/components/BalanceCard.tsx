@@ -9,11 +9,23 @@ interface BalanceCardProps {
 }
 
 function formatUSD(value: number): string {
-  return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (
+    '$' +
+    value.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+  );
 }
 
-export default function BalanceCard({ totalEthBalance, totalUsdValue, isLoading, unavailable = false }: BalanceCardProps) {
-  const hasUsdValue = totalUsdValue !== undefined && totalUsdValue > 0;
+export default function BalanceCard({
+  totalEthBalance,
+  totalUsdValue,
+  isLoading,
+  unavailable = false,
+}: BalanceCardProps) {
+  const hasUsdValue =
+    totalUsdValue !== undefined && Number.isFinite(totalUsdValue);
 
   return (
     <div className="glass-card p-6 sm:p-8 relative overflow-hidden">
@@ -23,7 +35,9 @@ export default function BalanceCard({ totalEthBalance, totalUsdValue, isLoading,
 
       <div className="relative">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-surface-400 text-sm font-medium">Portfolio Balance</span>
+          <span className="text-surface-400 text-sm font-medium">
+            Portfolio Balance
+          </span>
           <span className="badge-info">{COMPANY.network}</span>
         </div>
 
@@ -33,13 +47,15 @@ export default function BalanceCard({ totalEthBalance, totalUsdValue, isLoading,
             <div className="skeleton h-4 w-32 rounded" />
           </div>
         ) : unavailable ? (
-          <p role="status" className="mt-3 text-surface-400">Balance unavailable</p>
+          <p role="status" className="mt-3 text-surface-400">
+            Balance unavailable
+          </p>
         ) : (
           <div className="mt-2">
             {hasUsdValue ? (
               <>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl sm:text-5xl font-bold text-white tracking-tight">
+                  <span className="text-4xl sm:text-5xl font-bold text-white tracking-tight break-all">
                     {formatUSD(totalUsdValue!)}
                   </span>
                 </div>
@@ -50,13 +66,16 @@ export default function BalanceCard({ totalEthBalance, totalUsdValue, isLoading,
             ) : (
               <>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl sm:text-5xl font-bold text-white tracking-tight">
+                  <span className="text-4xl sm:text-5xl font-bold text-white tracking-tight break-all">
                     {totalEthBalance}
                   </span>
-                  <span className="text-xl sm:text-2xl font-semibold text-surface-400">ETH</span>
+                  <span className="text-xl sm:text-2xl font-semibold text-surface-400">
+                    ETH
+                  </span>
                 </div>
                 <p className="text-surface-500 text-sm mt-2">
-                  Deposit assets to see your portfolio value.
+                  USD valuation unavailable. Your asset balances are shown
+                  below.
                 </p>
               </>
             )}
