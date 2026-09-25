@@ -7,6 +7,7 @@ import { PricesMap } from '@/hooks/usePrices';
 interface TokenListProps {
   tokens: TokenBalance[];
   isLoading: boolean;
+  unavailable?: boolean;
   prices?: PricesMap;
 }
 
@@ -89,7 +90,7 @@ function formatPortfolioUSD(value: number): string {
   return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default function TokenList({ tokens, isLoading, prices = {} }: TokenListProps) {
+export default function TokenList({ tokens, isLoading, prices = {}, unavailable = false }: TokenListProps) {
   // Only show tokens the user actually holds
   const heldTokens = tokens.filter(
     (token) => token.balance !== '0' && parseFloat(formatBalance(token.balance, token.decimals)) > 0
@@ -124,6 +125,8 @@ export default function TokenList({ tokens, isLoading, prices = {} }: TokenListP
             <TokenSkeleton key={i} />
           ))}
         </div>
+      ) : unavailable ? (
+        <p role="status" className="px-6 py-10 text-center text-sm text-surface-400">Token balances unavailable</p>
       ) : heldTokens.length === 0 ? (
         <div className="px-6 py-10 text-center">
           <p className="text-sm text-surface-500">No token balances found on this network.</p>

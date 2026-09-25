@@ -1,9 +1,10 @@
 'use client';
+import { useEmbeddedWallets } from '@/hooks/useEmbeddedWallets';
 // Morsands — Earn Panel (Aave v3 Multi-Network Yield)
 // Supports: Ethereum Mainnet, Polygon, Base
 // Revenue: 1% platform fee on every withdrawal, sent on-chain to Morsands fee wallet
 import { useState, useEffect, useCallback } from 'react';
-import { useSendTransaction, useWallets } from '@privy-io/react-auth';
+import { useSendTransaction } from '@privy-io/react-auth';
 import { encodeFunctionData, parseUnits, formatUnits, createPublicClient, http } from 'viem';
 import { mainnet, polygon, base } from 'viem/chains';
 import { FEE } from '@/lib/constants';
@@ -98,8 +99,7 @@ interface NetworkData {
 
 export default function EarnPanel({ walletAddress }: EarnPanelProps) {
   const { sendTransaction } = useSendTransaction();
-  const { wallets } = useWallets();
-  const embeddedWallet = wallets.find((w) => w.walletClientType === 'privy') || wallets[0];
+  const { evmWallet: embeddedWallet } = useEmbeddedWallets();
 
   const [selectedNetwork, setSelectedNetwork] = useState<NetworkKey>('ethereum');
   const [selectedToken, setSelectedToken] = useState<TokenKey>('USDC');

@@ -5,7 +5,7 @@ const ERC20_ABI_BALANCE_OF = '0x70a08231';
 interface BalanceResult {
   symbol: string;
   address: string | null;
-  balance: string;
+  balance: string | null;
   error?: string;
 }
 
@@ -56,7 +56,7 @@ async function getErc20Balance(
   ]);
 
   const hex = result as string;
-  if (!hex || hex === '0x' || hex === '0x0') return '0';
+  if (!hex || hex === '0x') throw new Error('Empty token balance response');
   return BigInt(hex).toString();
 }
 
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
           return {
             symbol: token.symbol,
             address: token.address,
-            balance: '0',
+            balance: null,
             error: 'Failed to fetch balance',
           };
         }

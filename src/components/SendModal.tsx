@@ -1,7 +1,9 @@
+import { useEmbeddedWallets } from '@/hooks/useEmbeddedWallets';
+import { walletStateMessage } from '@/lib/wallet/selection';
 // Morsands — Send Modal with 1% Service Fee
 
 import { useState, useCallback, useEffect } from 'react';
-import { useSendTransaction, useWallets } from '@privy-io/react-auth';
+import { useSendTransaction } from '@privy-io/react-auth';
 import { encodeFunctionData, erc20Abi, parseUnits, isAddress, formatUnits } from 'viem';
 import Modal from './Modal';
 import { CURATED_TOKENS, Token } from '@/lib/tokens';
@@ -21,7 +23,7 @@ const CNH_FEE_PERCENT = FEE.percentage; // 1%
 
 export default function SendModal({ isOpen, onClose }: SendModalProps) {
   const { sendTransaction } = useSendTransaction();
-  const { wallets } = useWallets();
+  const { evm, evmWallet: embeddedWallet } = useEmbeddedWallets();
 
   const [step, setStep] = useState<Step>('form');
   const [selectedToken, setSelectedToken] = useState<Token>(CURATED_TOKENS[0]);
@@ -47,7 +49,6 @@ export default function SendModal({ isOpen, onClose }: SendModalProps) {
     }
   }, [isOpen]);
 
-  const embeddedWallet = wallets.find((w) => w.walletClientType === 'privy') || wallets[0];
 
   const isValidForm = useCallback(() => {
     if (!recipient || !isAddress(recipient)) return false;
@@ -69,6 +70,7 @@ export default function SendModal({ isOpen, onClose }: SendModalProps) {
   };
 
   const handleConfirmSend = async () => {
+    if (!embeddedWallet) { setErrorMsg(walletStateMessage(evm.status) || 'Wallet unavailable'); setStep('error'); return; }
     setStep('sending');
     setErrorMsg('');
 
@@ -151,6 +153,7 @@ export default function SendModal({ isOpen, onClose }: SendModalProps) {
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Send">
+      {!embeddedWallet && <p role="status" className="text-sm text-amber-400">{walletStateMessage(evm.status)}</p>}
       {/* Step: Form */}
       {step === 'form' && (
         <div className="space-y-5">
@@ -282,7 +285,7 @@ export default function SendModal({ isOpen, onClose }: SendModalProps) {
           {/* Send Button */}
           <button
             onClick={handleSend}
-            disabled={!isValidForm()}
+            disabled={!embeddedWallet || !isValidForm()}
             className="btn-primary w-full py-3.5 text-sm font-semibold disabled:opacity-40"
           >
             Review Transfer

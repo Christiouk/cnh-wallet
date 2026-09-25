@@ -9,6 +9,7 @@ interface ActionButtonsProps {
   onReceive: () => void;
   onSwap?: () => void;
   walletAddress?: string;
+  disabled?: boolean;
 }
 
 // Filled SVG icons — cleaner and more recognisable than outlines at small sizes
@@ -57,6 +58,7 @@ export default function ActionButtons({
   onReceive,
   onSwap,
   walletAddress,
+  disabled = false,
 }: ActionButtonsProps) {
   const { fundWallet } = useFundWallet();
 
@@ -135,10 +137,11 @@ export default function ActionButtons({
         <button
           key={action.label}
           onClick={action.onClick}
+          disabled={disabled}
           className={`
             group flex flex-col items-center justify-center gap-2.5 py-4 px-2
             rounded-2xl bg-surface-800/50 border border-surface-700/30
-            transition-all duration-200 active:scale-[0.96]
+            transition-all duration-200 active:scale-[0.96] disabled:opacity-40 disabled:cursor-not-allowed
             ${action.border} ${action.glow}
           `}
         >

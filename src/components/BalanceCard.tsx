@@ -5,13 +5,14 @@ interface BalanceCardProps {
   totalEthBalance: string;
   totalUsdValue?: number;
   isLoading: boolean;
+  unavailable?: boolean;
 }
 
 function formatUSD(value: number): string {
   return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default function BalanceCard({ totalEthBalance, totalUsdValue, isLoading }: BalanceCardProps) {
+export default function BalanceCard({ totalEthBalance, totalUsdValue, isLoading, unavailable = false }: BalanceCardProps) {
   const hasUsdValue = totalUsdValue !== undefined && totalUsdValue > 0;
 
   return (
@@ -31,6 +32,8 @@ export default function BalanceCard({ totalEthBalance, totalUsdValue, isLoading 
             <div className="skeleton h-10 w-48 rounded-lg" />
             <div className="skeleton h-4 w-32 rounded" />
           </div>
+        ) : unavailable ? (
+          <p role="status" className="mt-3 text-surface-400">Balance unavailable</p>
         ) : (
           <div className="mt-2">
             {hasUsdValue ? (

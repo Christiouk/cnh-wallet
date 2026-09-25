@@ -1,6 +1,7 @@
 'use client';
 import { useState, useCallback } from 'react';
-import { useWallets } from '@privy-io/react-auth';
+import { useEmbeddedWallets } from './useEmbeddedWallets';
+import { walletStateMessage } from '@/lib/wallet/selection';
 import { createWalletClient, custom } from 'viem';
 import { gnosis } from 'viem/chains';
 
@@ -40,7 +41,7 @@ const INITIAL_STATE: GnosisPayState = {
 };
 
 export function useGnosisPay() {
-  const { wallets } = useWallets();
+  const { evm, evmWallet: wallet } = useEmbeddedWallets();
   const [state, setState] = useState<GnosisPayState>(INITIAL_STATE);
 
   const setStep = (step: GnosisPayStep) => setState(s => ({ ...s, step }));
@@ -48,8 +49,7 @@ export function useGnosisPay() {
 
   // Step 1: Authenticate via SIWE
   const authenticate = useCallback(async (): Promise<string | null> => {
-    const wallet = wallets[0];
-    if (!wallet) { setError('No wallet connected'); return null; }
+    if (!wallet) { setError(walletStateMessage(evm.status) || 'Wallet unavailable'); return null; }
 
     try {
       setStep('connecting');
@@ -106,7 +106,7 @@ export function useGnosisPay() {
       setError(err instanceof Error ? err.message : 'Authentication failed');
       return null;
     }
-  }, [wallets]);
+  }, [wallet, evm.status]);
 
   // Step 2: Check user profile or sign up
   const ensureUser = useCallback(async (jwt: string, email: string): Promise<boolean> => {

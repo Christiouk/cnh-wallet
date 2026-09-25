@@ -1,8 +1,10 @@
 'use client';
+import { useEmbeddedWallets } from '@/hooks/useEmbeddedWallets';
+import { walletStateMessage } from '@/lib/wallet/selection';
 // Morsands — Swap Modal (1inch v6 DEX Integration)
 // Flow: Quote → Fee (1% on-chain) → Approve (ERC-20) → Swap (1inch router)
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSendTransaction, useWallets } from '@privy-io/react-auth';
+import { useSendTransaction } from '@privy-io/react-auth';
 import {
   encodeFunctionData,
   parseUnits,
@@ -51,10 +53,9 @@ interface SwapModalProps {
 type SwapStep = 'idle' | 'quoting' | 'fee' | 'approve' | 'swap' | 'done' | 'error';
 
 export default function SwapModal({ isOpen, onClose, prices = {} }: SwapModalProps) {
-  const { wallets } = useWallets();
-  const { sendTransaction } = useSendTransaction();
-  const wallet = wallets[0];
-  const walletAddress = wallet?.address as `0x${string}` | undefined;
+  const { evm, evmWallet: embeddedWallet } = useEmbeddedWallets();
+  const { sendTransaction: sendWithPrivy } = useSendTransaction();
+  const walletAddress = embeddedWallet?.address as `0x${string}` | undefined;
 
   const [fromToken, setFromToken] = useState('ETH');
   const [toToken, setToToken] = useState('USDC');
@@ -119,6 +120,8 @@ export default function SwapModal({ isOpen, onClose, prices = {} }: SwapModalPro
 
   const handleSwap = async () => {
     if (!walletAddress || !fromTokenData || !toTokenData || numFrom <= 0) return;
+    const sendTransaction = (transaction: Parameters<typeof sendWithPrivy>[0]) =>
+      sendWithPrivy({ ...transaction, chainId: ONEINCH_CHAIN_ID }, { address: walletAddress });
     setErrorMsg(null);
     try {
       const srcToken = fromTokenData.isNative ? NATIVE_ETH : fromTokenData.address!;
@@ -191,6 +194,7 @@ export default function SwapModal({ isOpen, onClose, prices = {} }: SwapModalPro
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Swap Tokens">
+      {!embeddedWallet && <p role="status" className="text-sm text-amber-400">{walletStateMessage(evm.status)}</p>}
       {step === 'done' ? (
         <div className="space-y-5">
           <div className="text-center py-4">
