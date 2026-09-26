@@ -12,7 +12,34 @@ import TokenList from './TokenList';
 import TransactionHistory from './TransactionHistory';
 import ReceiveModal from './ReceiveModal';
 import SendModal from './SendModal';
+import TronWorkspace from './tron/TronWorkspace';
+import type { A3Network } from '@/lib/wallet/networks';
 export default function Dashboard() {
+  const [network, setNetwork] = useState<A3Network>('ethereum');
+  const { user, tron } = useEmbeddedWallets();
+  if (network === 'ethereum')
+    return <EthereumDashboard onNetworkChange={setNetwork} />;
+  return (
+    <div className="min-h-screen bg-surface">
+      <Header
+        network="tron"
+        onNetworkChange={setNetwork}
+        walletAddress={tron?.status === 'ready' ? tron.wallet.address : ''}
+        onRefresh={() => window.location.reload()}
+        isRefreshing={false}
+      />
+      <TronWorkspace key={user?.id} />
+      <footer className="max-w-6xl mx-auto p-6 text-xs text-surface-500">
+        Morsands · Tron · Powered by Privy
+      </footer>
+    </div>
+  );
+}
+function EthereumDashboard({
+  onNetworkChange,
+}: {
+  onNetworkChange(network: A3Network): void;
+}) {
   const { user, evm } = useEmbeddedWallets();
   const walletAddress = evm.status === 'ready' ? evm.wallet.address : '';
   const { state: portfolio, refresh } = usePortfolioBalances(
@@ -43,6 +70,8 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-surface">
       <Header
+        network="ethereum"
+        onNetworkChange={onNetworkChange}
         walletAddress={walletAddress}
         onRefresh={refresh}
         isRefreshing={loading}

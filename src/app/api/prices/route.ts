@@ -18,7 +18,7 @@ export async function GET(request: Request) {
       );
     if (cache && Date.now() - cache.updatedAt < 60000)
       return NextResponse.json(cache);
-    const ids = CURATED_TOKENS.map((t) => t.coingeckoId).join(',');
+    const ids = CURATED_TOKENS.map((t) => t.coingeckoId).join(',') + ',tron';
     const raw = await jsonFetch(
       `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`,
       {
@@ -47,6 +47,18 @@ export async function GET(request: Request) {
           Number.isFinite(price.usd_24h_change)
             ? price.usd_24h_change
             : 0,
+      };
+    }
+    if (
+      typeof raw?.tron?.usd === 'number' &&
+      Number.isFinite(raw.tron.usd) &&
+      raw.tron.usd > 0
+    ) {
+      prices.TRX = {
+        usd: raw.tron.usd,
+        usd_24h_change: Number.isFinite(raw.tron.usd_24h_change)
+          ? raw.tron.usd_24h_change
+          : 0,
       };
     }
     cache = { prices, updatedAt: Date.now() };

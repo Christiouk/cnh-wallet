@@ -47,7 +47,10 @@ export function guard(request: Request, category: string, maximum = 60) {
   bucket.count++;
   limits.set(key, bucket);
 }
-export async function body(request: Request): Promise<Record<string, unknown>> {
+export async function body(
+  request: Request,
+  maximumBytes = 2048,
+): Promise<Record<string, unknown>> {
   if (!request.headers.get('content-type')?.startsWith('application/json'))
     throw new ApiError(415, 'INVALID_CONTENT_TYPE', 'Expected JSON');
   const reader = request.body?.getReader();
@@ -60,7 +63,7 @@ export async function body(request: Request): Promise<Record<string, unknown>> {
       const next = await reader.read();
       if (next.done) break;
       size += next.value.byteLength;
-      if (size > 2048) {
+      if (size > maximumBytes) {
         await reader.cancel();
         throw new ApiError(413, 'PAYLOAD_TOO_LARGE', 'Request too large');
       }

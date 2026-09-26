@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-import PrivyProviderWrapper from '@/providers/PrivyProviderWrapper';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
 
 export const metadata: Metadata = {
@@ -54,7 +53,7 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body className="min-h-screen bg-surface">
-        <PrivyProviderWrapper>{children}</PrivyProviderWrapper>
+        {children}
         <ServiceWorkerRegistration />
       </body>
     </html>

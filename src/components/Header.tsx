@@ -1,12 +1,17 @@
 'use client';
 import Image from 'next/image';
 import { usePrivy } from '@privy-io/react-auth';
+import type { A3Network } from '@/lib/wallet/networks';
 import { COMPANY } from '@/lib/constants';
 export default function Header({
+  network = 'ethereum',
+  onNetworkChange,
   walletAddress,
   onRefresh,
   isRefreshing,
 }: {
+  network?: A3Network;
+  onNetworkChange?: (network: A3Network) => void;
   walletAddress: string;
   onRefresh: () => void;
   isRefreshing: boolean;
@@ -18,7 +23,21 @@ export default function Header({
         <div className="flex items-center gap-3">
           <Image src="/logo.png" alt="Morsands" width={36} height={36} />
           <h1 className="font-bold">{COMPANY.walletName}</h1>
-          <span className="badge-info">Ethereum</span>
+          <label className="text-sm">
+            <span className="sr-only">Network</span>
+            <select
+              aria-label="Network"
+              className="bg-surface-800 rounded-lg px-3 py-2"
+              value={network}
+              onChange={(e) => {
+                if (e.target.value === 'ethereum' || e.target.value === 'tron')
+                  onNetworkChange?.(e.target.value);
+              }}
+            >
+              <option value="ethereum">Ethereum</option>
+              <option value="tron">Tron</option>
+            </select>
+          </label>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs font-mono">

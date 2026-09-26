@@ -90,8 +90,8 @@ test('unsupported chain has explicit state and never inherits an EVM address', (
     assert.deepEqual(getNetworkWalletState(network, evm, { status: 'missing' }), { status: 'unsupported-chain', network });
   }
 });
-test('Tron remains deferred even if an account already exists', () => {
-  assert.deepEqual(getNetworkWalletState('tron', { status: 'missing' }, { status: 'ready', wallet: { address: 'TTest' } }), { status: 'deferred', network: 'tron' });
+test('Tron selects its own valid address when an account exists', () => {
+  assert.deepEqual(getNetworkWalletState('tron', { status: 'missing' }, { status: 'ready', wallet: { address: 'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8' } }), { status: 'ready', network: 'tron', address: 'TJRabPrwbZy45sbavfcjinPJC18kjpRTv8' });
   assert.deepEqual(getNetworkWalletState('tron', { status: 'missing' }, { status: 'missing' }), { status: 'missing', network: 'tron' });
 });
 test('real zero is valid; RPC error, absent balance, malformed result and wrong token are not zero', () => {
