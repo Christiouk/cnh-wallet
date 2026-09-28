@@ -20,9 +20,9 @@ export default function Header({
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-surface/80 border-b border-surface-800/50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="Morsands" width={36} height={36} />
-          <h1 className="font-bold">{COMPANY.walletName}</h1>
+        <div className="flex flex-wrap items-center gap-3 min-w-0">
+          <Image src="/brand/a3-wallet-horizontal-light.svg" alt={COMPANY.walletName} width={184} height={60} className="h-auto shrink-0" priority unoptimized />
+          <h1 className="sr-only">{COMPANY.walletName}</h1>
           <label className="text-sm">
             <span className="sr-only">Network</span>
             <select
@@ -39,7 +39,7 @@ export default function Header({
             </select>
           </label>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 min-w-0">
           <span className="text-xs font-mono">
             {walletAddress
               ? `${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}`

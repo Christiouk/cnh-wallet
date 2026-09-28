@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 export function ServiceWorkerRegistration() {
   useEffect(() => {
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
-      window.addEventListener('load', () => {
+      const register = () => {
         navigator.serviceWorker
           .register('/sw.js')
           .then((registration) => {
@@ -14,7 +14,10 @@ export function ServiceWorkerRegistration() {
           .catch((error) => {
             console.log('SW registration failed:', error);
           });
-      });
+      };
+      if (document.readyState === 'complete') register();
+      else window.addEventListener('load', register, { once: true });
+      return () => window.removeEventListener('load', register);
     }
   }, []);
 

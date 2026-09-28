@@ -1,6 +1,6 @@
 export const COMPANY = {
   name: 'CNH Financial',
-  walletName: 'Morsands Wallet',
-  tagline: 'Your Keys. Your Assets. Your Future.',
+  walletName: 'A3 Wallet',
+  tagline: 'YOUR ASSETS. YOUR CONTROL.',
   network: 'Ethereum',
 } as const;

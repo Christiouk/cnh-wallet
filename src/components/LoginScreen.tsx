@@ -10,28 +10,19 @@ export default function LoginScreen() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-600/8 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-brand-500/5 rounded-full blur-[100px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-700/3 rounded-full blur-[150px]" />
-      </div>
-
       <div className="relative w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-5 shadow-glow-lg">
-            <Image
-              src="/morsands_icon_final.png"
-              alt="Morsands"
-              width={80}
-              height={80}
-              className="w-full h-full object-cover"
-              priority
-              unoptimized
-            />
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-1">{COMPANY.walletName}</h1>
+          <Image
+            src="/brand/a3-login-logo-light-transparent.png"
+            alt="A3 Wallet — YOUR ASSETS. YOUR CONTROL."
+            width={1800}
+            height={720}
+            className="w-full h-auto mx-auto mb-4"
+            priority
+            unoptimized
+          />
+          <h1 className="sr-only">{COMPANY.walletName}</h1>
           <p className="text-surface-400 text-sm">by {COMPANY.name}</p>
         </div>
 

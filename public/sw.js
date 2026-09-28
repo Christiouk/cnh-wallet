@@ -1,12 +1,12 @@
 /**
- * Morsands — Service Worker
+ * A3 Wallet — Service Worker
  * Provides offline caching for the PWA experience.
  * Strategy: Network-first with cache fallback for pages,
  * Cache-first for static assets.
  */
 
-const CACHE_NAME = 'a3-core-v1';
-const STATIC_CACHE = 'a3-core-static-v1';
+const CACHE_NAME = 'a3-brand-v2';
+const STATIC_CACHE = 'a3-brand-static-v2';
 
 // Static assets to pre-cache on install
 const PRECACHE_ASSETS = [

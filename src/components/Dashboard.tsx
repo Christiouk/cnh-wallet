@@ -30,7 +30,7 @@ export default function Dashboard() {
       />
       <TronWorkspace key={user?.id} />
       <footer className="max-w-6xl mx-auto p-6 text-xs text-surface-500">
-        Morsands · Tron · Powered by Privy
+        A3 Wallet · Tron · Powered by Privy
       </footer>
     </div>
   );
@@ -107,7 +107,7 @@ function EthereumDashboard({
         )}
       </main>
       <footer className="max-w-6xl mx-auto p-6 text-xs text-surface-500">
-        Morsands · Ethereum · Powered by Privy
+        A3 Wallet · Ethereum · Powered by Privy
       </footer>
       <ReceiveModal
         isOpen={modal === 'receive' && Boolean(walletAddress)}
