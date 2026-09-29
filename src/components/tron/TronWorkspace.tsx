@@ -12,7 +12,17 @@ import {
 import TronReceive from './TronReceive';
 import TronSend from './TronSend';
 import Modal from '../Modal';
-export default function TronWorkspace() {
+import BalanceCard from '../BalanceCard';
+import ActionButtons from '../ActionButtons';
+import { AssetList } from '../TokenList';
+import ActivityView from '../ui/ActivityView';
+import type { WalletView } from '../ui/WalletShell';
+import { friendlyError } from '../ui/TransferStatus';
+export default function TronWorkspace({
+  view = 'wallet',
+}: {
+  view?: WalletView;
+}) {
   const { userId, selection, driver } = useTronWallet();
   const { prices } = usePrices();
   const [config, setConfig] = useState({
@@ -35,6 +45,7 @@ export default function TronWorkspace() {
   return (
     <TronPanel
       key={`${userId}:${selection.status === 'ready' ? selection.wallet.address : selection.status}`}
+      view={view}
       status={selection.status}
       owner={
         selection.status === 'ready' && userId && selection.wallet.id
@@ -52,6 +63,7 @@ export default function TronWorkspace() {
   );
 }
 export function TronPanel({
+  view = 'wallet',
   status,
   owner,
   driver,
@@ -59,6 +71,7 @@ export function TronPanel({
   prices,
 }: {
   prices: PricesMap;
+  view?: WalletView;
   status: string;
   owner?: TronIdentity;
   driver: TronDriver;
@@ -138,22 +151,27 @@ export function TronPanel({
   const usdtUsd = usd('usdt'),
     trxUsd = usd('trx');
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-      <div className="flex justify-between items-center gap-4">
-        <h2 className="text-xl font-semibold">Tron wallet</h2>
+    <div className="tron-workspace">
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow">A3 WALLET / TRON</p>
+          <h1>{view === 'activity' ? 'Your activity.' : 'Your wallet.'}</h1>
+        </div>
         {owner && (
           <button className="btn-ghost" onClick={refresh}>
-            Refresh Tron
+            Refresh Tron <span aria-hidden>↻</span>
           </button>
         )}
       </div>
       {status === 'missing' && (
-        <section className="glass-card p-6 space-y-4">
-          <h3 className="text-lg">Enable Tron</h3>
+        <section className="setup-panel">
+          <span className="setup-mark" aria-hidden>
+            T
+          </span>
+          <p className="eyebrow">A NEW NETWORK. YOUR SAME ACCOUNT.</p>
+          <h2>Add Tron to A3.</h2>
           <p>Add a Tron address to your existing A3 account for USDT TRC-20.</p>
-          <p className="text-sm text-surface-400">
-            Your existing Ethereum wallet stays the same.
-          </p>
+          <p className="muted">Your existing Ethereum wallet stays the same.</p>
           <button
             className="btn-primary"
             disabled={!config.creation}
@@ -162,12 +180,14 @@ export function TronPanel({
             Enable Tron
           </button>
           {!config.creation && (
-            <p role="status">Tron setup awaits live validation.</p>
+            <p role="status" className="notice">
+              Tron setup awaits live validation.
+            </p>
           )}
         </section>
       )}
       {status !== 'ready' && status !== 'missing' && (
-        <p role="status">
+        <p role="status" className="empty-state">
           {status === 'loading'
             ? 'Loading your Tron wallet…'
             : status === 'ambiguous'
@@ -177,108 +197,105 @@ export function TronPanel({
       )}
       {owner && (
         <>
-          <section className="glass-card p-6 space-y-4">
-            <p className="text-surface-400">Tron portfolio</p>
-            <p className="text-3xl font-bold">
-              {usdtUsd !== undefined && trxUsd !== undefined
-                ? `≈ $${(usdtUsd + trxUsd).toFixed(2)}`
-                : 'USD valuation unavailable'}
-            </p>
-            <p className="font-mono text-xs break-all">{owner.address}</p>
-            <div className="flex gap-3">
-              <button
-                className="btn-primary"
-                onClick={() => setModal('receive')}
-              >
-                Receive
-              </button>
-              <button
-                className="btn-secondary"
-                disabled={!config.send || balances?.usdt.status !== 'ready'}
-                onClick={() => setModal('send')}
-              >
-                Send
-              </button>
-            </div>
-            {!config.send && (
-              <p className="text-sm text-surface-400">
-                Tron sending awaits live validation.
-              </p>
-            )}
-          </section>
-          <section
-            className="glass-card p-6 space-y-4"
-            aria-label="Tron assets"
+          <div
+            className={view === 'wallet' ? 'portfolio-layout' : 'activity-page'}
           >
-            <div className="flex justify-between gap-4">
-              <span>
-                USDT <small>TRC-20</small>
-              </span>
-              <div className="text-right">
-                <p>{value('usdt')} USDT</p>
-                <small>
-                  {usdtUsd === undefined
-                    ? 'USD value unavailable'
-                    : `≈ $${usdtUsd.toFixed(2)}`}
-                </small>
+            {view === 'wallet' && (
+              <div className="portfolio-primary">
+                <BalanceCard
+                  network="Tron"
+                  totalUsdValue={
+                    usdtUsd !== undefined && trxUsd !== undefined
+                      ? usdtUsd + trxUsd
+                      : undefined
+                  }
+                  isLoading={!balances}
+                  unavailable={
+                    balances?.usdt.status === 'unavailable' ||
+                    balances?.trx.status === 'unavailable'
+                  }
+                />
+                <ActionButtons
+                  onReceive={() => setModal('receive')}
+                  onSend={() => setModal('send')}
+                  disabled={false}
+                  sendDisabled={
+                    !config.send || balances?.usdt.status !== 'ready'
+                  }
+                />
+                {!config.send && (
+                  <p role="status" className="notice">
+                    Tron sending awaits live validation.
+                  </p>
+                )}
+                <AssetList
+                  network="Tron"
+                  rows={[
+                    {
+                      symbol: 'USDT',
+                      name: 'Tether USD',
+                      standard: 'TRC-20',
+                      amount: value('usdt'),
+                      usd: usdtUsd,
+                    },
+                    {
+                      symbol: 'TRX',
+                      name: 'Tron',
+                      standard: 'Network resources',
+                      amount: value('trx'),
+                      usd: trxUsd,
+                    },
+                  ]}
+                />
+                {balances?.activated === false && (
+                  <p className="notice">
+                    Network resource required. This address has not been
+                    activated on Tron.
+                  </p>
+                )}
+                <p className="portfolio-footnote">
+                  USDT on Tron.
+                  <br />
+                  TRX may be needed for network resources when you send.
+                </p>
               </div>
-            </div>
-            <div className="flex justify-between gap-4">
-              <span>TRX</span>
-              <div className="text-right">
-                <p>{value('trx')} TRX</p>
-                <small>
-                  {trxUsd === undefined
-                    ? 'USD value unavailable'
-                    : `≈ $${trxUsd.toFixed(2)}`}
-                </small>
-              </div>
-            </div>
-            <p className="text-sm text-surface-400">
-              TRX may be used for Tron network resources. A wallet holding only
-              USDT may need TRX before sending.
-            </p>
-            {balances?.activated === false && (
-              <p className="text-amber-300">
-                Network resource required. This address has not been activated
-                on Tron.
-              </p>
             )}
-          </section>
-          <section className="glass-card p-6 space-y-4">
-            <h3 className="font-semibold">Tron activity · USDT TRC-20</h3>
-            {activity === undefined ? (
-              <p>Loading activity…</p>
-            ) : activity === null ? (
-              <p>Activity temporarily unavailable</p>
-            ) : activity.length === 0 ? (
-              <p>No recent USDT transfers found by the indexer.</p>
-            ) : (
-              <ul className="space-y-4">
-                {activity.map((row, index) => (
-                  <li key={`${row.hash}:${index}`} className="text-sm">
-                    <a
-                      href={tronExplorer('transaction', row.hash)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-300 underline"
-                    >
-                      {row.from === owner.address ? 'Sent' : 'Received'}{' '}
-                      {displayUnits(row.units)} USDT
-                    </a>
-                    <p>
-                      {new Date(row.timestamp).toLocaleString()} · Indexed
-                      confirmed
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <p className="text-xs text-surface-400">
-              Latest 20 indexed transfers. Indexing may lag; submitted transfers
-              use separate network confirmation checks.
-            </p>
-          </section>
+            <aside className="portfolio-secondary">
+              <ActivityView
+                network="Tron"
+                state={
+                  activity === undefined
+                    ? 'loading'
+                    : activity === null
+                      ? 'unavailable'
+                      : 'ready'
+                }
+                rows={(activity || []).map((row) => ({
+                  hash: row.hash,
+                  direction: row.from === owner.address ? 'Sent' : 'Received',
+                  amount: displayUnits(row.units),
+                  asset: 'USDT',
+                  timestamp: row.timestamp,
+                  status: 'Indexed confirmed',
+                  explorer: tronExplorer('transaction', row.hash),
+                }))}
+                limit={view === 'wallet' ? 5 : undefined}
+                onRefresh={refresh}
+                note="USDT TRC-20 only. Latest 20 indexed transfers. Indexing may lag; submitted transfers use separate network confirmation checks."
+              />
+              {view === 'wallet' && (
+                <div className="network-context">
+                  <p className="eyebrow">YOUR NETWORK</p>
+                  <h3>Tron</h3>
+                  <p>
+                    For USDT, choose TRON / TRC-20 at the sending wallet or
+                    exchange.
+                  </p>
+                  <span>No A3 transfer fee. Network costs use TRX.</span>
+                </div>
+              )}
+            </aside>
+          </div>
           {modal === 'receive' && (
             <TronReceive
               address={owner.address}
@@ -289,6 +306,11 @@ export function TronPanel({
             <TronSend
               owner={owner}
               driver={driver}
+              availableBalance={
+                balances?.usdt.status === 'ready'
+                  ? displayUnits(balances.usdt.units)
+                  : undefined
+              }
               onClose={() => setModal(null)}
               onConfirmed={refresh}
             />
@@ -297,7 +319,7 @@ export function TronPanel({
       )}
       {error && (
         <p role="alert" className="text-amber-300">
-          {error}
+          {friendlyError(error)}
         </p>
       )}
       <Modal
@@ -337,6 +359,6 @@ export function TronPanel({
           </button>
         </div>
       </Modal>
-    </main>
+    </div>
   );
 }

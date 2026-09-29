@@ -89,7 +89,7 @@ test('Send UI moves review → signature → submitted → confirming → receip
       await Promise.resolve();
       await Promise.resolve();
     });
-    assert.match(text(), /requesting signature/);
+    assert.match(text(), /Requesting approval/);
     assert.equal(signCalls.length, 1);
     await act(async () => {
       resolveSignature({ hash });

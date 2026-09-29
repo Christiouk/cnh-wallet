@@ -12,6 +12,7 @@ import {
 } from '@/lib/tron/core';
 import type { TronDriver } from '@/hooks/useTronWallet';
 import Modal from '../Modal';
+import TransferStatus, { friendlyError } from '../ui/TransferStatus';
 type Stage =
   | 'form'
   | 'review'
@@ -22,11 +23,13 @@ type Stage =
   | 'failed';
 export default function TronSend({
   owner,
+  availableBalance,
   driver,
   onClose,
   onConfirmed,
 }: {
   owner: TronIdentity;
+  availableBalance?: string;
   driver: TronDriver;
   onClose(): void;
   onConfirmed(): void;
@@ -185,10 +188,22 @@ export default function TronSend({
         if (!busy) onClose();
       }}
       title="Send USDT · Tron"
+      suspendFocusTrap={stage === 'signing'}
     >
-      <div className="space-y-4">
+      <div className="send-flow space-y-4">
+        <div className="network-banner">
+          <span className="eyebrow">NETWORK</span>
+          <strong>Tron</strong>
+          <span>USDT · TRC-20</span>
+        </div>
         {stage === 'form' && (
           <form onSubmit={review} className="space-y-4">
+            <p className="available-balance">
+              Available:{' '}
+              {availableBalance === undefined
+                ? 'Balance unavailable'
+                : `${availableBalance} USDT`}
+            </p>
             <label className="block">
               Tron recipient
               <input
@@ -219,9 +234,10 @@ export default function TronSend({
             </button>
           </form>
         )}
+        {stage !== 'form' && <TransferStatus stage={stage} network="Tron" />}
         {quote && stage !== 'form' && (
           <>
-            <p className="text-2xl font-semibold">
+            <p className="review-amount">
               {displayUnits(quote.intent.units)} USDT
             </p>
             <p className="text-sm">Tron · USDT TRC-20</p>
@@ -255,26 +271,12 @@ export default function TronSend({
             </button>
           </>
         )}
-        {stage !== 'form' && stage !== 'review' && (
-          <p role="status">
-            {
-              (
-                {
-                  signing: 'Requesting authorization…',
-                  submitted: 'Submitted — awaiting network confirmation',
-                  confirming: 'Confirming on Tron…',
-                  confirmed: 'Transfer confirmed',
-                  failed: 'Transfer failed',
-                } as const
-              )[stage]
-            }
-          </p>
-        )}
         {hash && (
           <>
+            <p className="field-label">Transaction hash</p>
             <p className="font-mono text-xs break-all">{hash}</p>
             <a
-              className="text-blue-300 underline"
+              className="explorer-link"
               href={tronExplorer('transaction', hash)}
               target="_blank"
               rel="noreferrer"
@@ -284,8 +286,8 @@ export default function TronSend({
           </>
         )}
         {error && (
-          <p role="alert" className="text-amber-300 text-sm">
-            {error}
+          <p role="alert" className="notice">
+            {friendlyError(error)}
           </p>
         )}
         {(stage === 'confirmed' || stage === 'failed') && (

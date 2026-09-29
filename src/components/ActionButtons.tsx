@@ -3,43 +3,25 @@ export default function ActionButtons({
   onSend,
   onReceive,
   disabled,
+  sendDisabled = disabled,
 }: {
-  onSend: () => void;
-  onReceive: () => void;
+  onSend(): void;
+  onReceive(): void;
   disabled: boolean;
+  sendDisabled?: boolean;
 }) {
   return (
-    <div>
-      <nav aria-label="Wallet actions" className="grid grid-cols-3 gap-3">
-        <button
-          disabled
-          aria-describedby="buy-unavailable"
-          className="btn-primary py-3 disabled:opacity-40"
-        >
-          Buy
-        </button>
-        {[
-          { label: 'Send', action: onSend },
-          { label: 'Receive', action: onReceive },
-        ].map(({ label, action }) => (
-          <button
-            key={label}
-            onClick={action}
-            disabled={disabled}
-            className="btn-primary py-3 disabled:opacity-40"
-          >
-            {label}
-          </button>
-        ))}
-      </nav>
-      <p
-        id="buy-unavailable"
-        role="status"
-        className="text-xs text-surface-400 mt-3"
+    <nav aria-label="Wallet actions" className="wallet-actions">
+      <button className="btn-primary" onClick={onReceive} disabled={disabled}>
+        <span aria-hidden>↙</span>Receive
+      </button>
+      <button
+        className="btn-secondary"
+        onClick={onSend}
+        disabled={sendDisabled}
       >
-        Buy temporarily unavailable. The purchase provider integration is being
-        updated.
-      </p>
-    </div>
+        <span aria-hidden>↗</span>Send
+      </button>
+    </nav>
   );
 }

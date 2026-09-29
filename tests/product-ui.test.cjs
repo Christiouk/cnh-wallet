@@ -53,13 +53,13 @@ const Dashboard = require('../.test-build/src/components/Dashboard').default;
 const Receive = require('../.test-build/src/components/ReceiveModal').default;
 const Actions = require('../.test-build/src/components/ActionButtons').default;
 Module._load = originalLoad;
-test('rendered dashboard has only Buy/Send/Receive actions and no legacy product or broad network options', () => {
+test('rendered dashboard has only Receive/Send actions and no legacy product or broad network options', () => {
   const html = renderToStaticMarkup(React.createElement(Dashboard));
-  for (const action of ['Buy', 'Send', 'Receive'])
+  for (const action of ['Send', 'Receive'])
     assert.match(html, new RegExp('>' + action + '</button>'));
   assert.doesNotMatch(
     html,
-    />(Sell|Swap|Fund|Earn|Card|Bitcoin|Base|Polygon|Arbitrum|Optimism|BNB)</,
+    />(Buy|Sell|Swap|Fund|Earn|Card|Bitcoin|Base|Polygon|Arbitrum|Optimism|BNB)</,
   );
   assert.doesNotMatch(
     html,
@@ -90,7 +90,7 @@ test('Receive renders the resolved Ethereum address, QR and Ethereum-only asset 
   assert.match(unavailable, /Ethereum wallet unavailable/);
   assert.doesNotMatch(unavailable, /Your Ethereum Wallet Address/);
 });
-test('Buy explicitly unavailable, no legacy provider iframe or desk fallback', () => {
+test('Buy is absent, no legacy provider iframe or desk fallback', () => {
   const html = renderToStaticMarkup(
     React.createElement(Actions, {
       disabled: false,
@@ -98,7 +98,7 @@ test('Buy explicitly unavailable, no legacy provider iframe or desk fallback', (
       onReceive() {},
     }),
   );
-  assert.match(html, /Buy temporarily unavailable/);
-  assert.match(html, /<button disabled=""[^>]*>Buy<\/button>/);
+  assert.doesNotMatch(html, /Buy|buy-unavailable/);
+  assert.equal((html.match(/<button/g) || []).length, 2);
   assert.doesNotMatch(html, /iframe|wa\.me|apiKey/);
 });

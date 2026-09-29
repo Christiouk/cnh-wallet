@@ -2,6 +2,78 @@
 import { formatUnits } from 'viem';
 import type { TokenBalance } from '@/lib/tokens';
 import type { PricesMap } from '@/hooks/usePrices';
+import { money } from './BalanceCard';
+export function assetAmount(value: string) {
+  if (!/^\d+(\.\d+)?$/.test(value)) return value;
+  const [whole, fraction] = value.split('.');
+  return (
+    whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',') +
+    (fraction ? '.' + fraction : '')
+  );
+}
+export type AssetRow = {
+  symbol: string;
+  name: string;
+  standard: string;
+  amount: string;
+  usd?: number;
+};
+export function AssetList({
+  rows,
+  network,
+  loading,
+  unavailable,
+}: {
+  rows: AssetRow[];
+  network: string;
+  loading?: boolean;
+  unavailable?: boolean;
+}) {
+  return (
+    <section className="asset-section">
+      <div className="section-line">
+        <h2>Assets</h2>
+        <span className="quiet-label">{network}</span>
+      </div>
+      {loading ? (
+        <p className="empty-state" role="status">
+          Loading balances…
+        </p>
+      ) : unavailable ? (
+        <p className="empty-state" role="status">
+          Balances unavailable
+        </p>
+      ) : (
+        <ul className="asset-list">
+          {rows.map((row) => (
+            <li key={row.symbol}>
+              <span
+                className={`asset-mark asset-${row.symbol.toLowerCase()}`}
+                aria-hidden
+              >
+                {row.symbol === 'ETH' ? '◇' : row.symbol === 'TRX' ? 'T' : '$'}
+              </span>
+              <div className="asset-description">
+                <h3>{row.symbol}</h3>
+                <p>
+                  {row.name} · {row.standard}
+                </p>
+              </div>
+              <div className="asset-value">
+                <p>{assetAmount(row.amount)}</p>
+                <span>
+                  {row.usd === undefined || !Number.isFinite(row.usd)
+                    ? 'USD value unavailable'
+                    : money(row.usd)}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
 export default function TokenList({
   tokens,
   isLoading,
@@ -14,38 +86,20 @@ export default function TokenList({
   unavailable: boolean;
 }) {
   return (
-    <section className="glass-card p-5">
-      <h2 className="font-semibold mb-4">Assets · Ethereum</h2>
-      {isLoading ? (
-        <p role="status">Loading balances…</p>
-      ) : unavailable ? (
-        <p role="status">Balances unavailable</p>
-      ) : (
-        <ul className="divide-y divide-surface-800">
-          {tokens.map((t) => (
-            <li key={t.symbol} className="py-4 flex justify-between gap-3">
-              <div>
-                <p>
-                  {t.name} <span className="text-surface-400">{t.symbol}</span>
-                </p>
-                <p className="text-xs text-surface-400">
-                  Ethereum{t.isNative ? '' : ' · ERC-20'}
-                </p>
-              </div>
-              <div className="text-right min-w-0 max-w-[65%]">
-                <p className="break-all">
-                  {formatUnits(BigInt(t.balance), t.decimals)} {t.symbol}
-                </p>
-                <p className="text-xs text-surface-400">
-                  {prices[t.symbol]
-                    ? `$${(Number(formatUnits(BigInt(t.balance), t.decimals)) * prices[t.symbol].usd).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                    : 'USD price unavailable'}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+    <AssetList
+      network="Ethereum"
+      loading={isLoading}
+      unavailable={unavailable}
+      rows={tokens.map((t) => ({
+        symbol: t.symbol,
+        name: t.name,
+        standard: t.isNative ? 'Native asset' : 'ERC-20',
+        amount: formatUnits(BigInt(t.balance), t.decimals),
+        usd: prices[t.symbol]
+          ? Number(formatUnits(BigInt(t.balance), t.decimals)) *
+            prices[t.symbol].usd
+          : undefined,
+      }))}
+    />
   );
 }

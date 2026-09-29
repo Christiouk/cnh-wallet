@@ -11,6 +11,8 @@ import {
   type SendStage,
 } from '@/lib/wallet/send';
 import Modal from './Modal';
+import type { TokenBalance } from '@/lib/tokens';
+import TransferStatus, { friendlyError } from './ui/TransferStatus';
 
 async function readSend(input: object, signal?: AbortSignal) {
   const response = await fetch('/api/send', {
@@ -27,14 +29,44 @@ async function readSend(input: object, signal?: AbortSignal) {
 export default function SendModal({
   isOpen,
   onClose,
+  balances,
 }: {
   isOpen: boolean;
-  onClose: () => void;
+  onClose(): void;
+  balances?: TokenBalance[];
 }) {
   const { evm, user } = useEmbeddedWallets();
   const { sendTransaction } = useSendTransaction();
   const sender = evm.status === 'ready' ? evm.wallet.address : '';
-  const identity = `${user?.id}:${sender}`;
+  return (
+    <EthereumSend
+      isOpen={isOpen}
+      onClose={onClose}
+      balances={balances}
+      sender={sender}
+      identity={`${user?.id}:${sender}`}
+      sendTransaction={sendTransaction}
+      read={readSend}
+    />
+  );
+}
+export function EthereumSend({
+  isOpen,
+  onClose,
+  balances,
+  sender,
+  identity,
+  sendTransaction,
+  read = readSend,
+}: {
+  isOpen: boolean;
+  onClose(): void;
+  balances?: TokenBalance[];
+  sender: string;
+  identity: string;
+  sendTransaction: Parameters<typeof submitSend>[1];
+  read?: typeof readSend;
+}) {
   const currentIdentity = useRef(identity);
   currentIdentity.current = identity;
   const alive = useRef(true);
@@ -64,10 +96,7 @@ export default function SendModal({
       if (controller.signal.aborted) return;
       setStage('confirming');
       try {
-        const data = await readSend(
-          { action: 'receipt', hash },
-          controller.signal,
-        );
+        const data = await read({ action: 'receipt', hash }, controller.signal);
         if (controller.signal.aborted) return;
         if (data.status === 'confirmed' || data.status === 'failed') {
           setStage(data.status);
@@ -97,7 +126,7 @@ export default function SendModal({
       controller.abort();
       clearTimeout(timer);
     };
-  }, [hash, poll]);
+  }, [hash, poll, read]);
 
   async function review() {
     if (locked.current || !sender) return;
@@ -108,7 +137,7 @@ export default function SendModal({
     try {
       const input = { sender, recipient: recipient.trim(), symbol, amount };
       buildSend(input);
-      const preview = await readSend({ action: 'preview', ...input });
+      const preview = await read({ action: 'preview', ...input });
       if (!alive.current || currentIdentity.current !== scope) return;
       if (!/^\d+$/.test(preview.estimatedNetworkCost) || preview.chainId !== 1)
         throw new Error('Invalid network estimate');
@@ -132,7 +161,7 @@ export default function SendModal({
     const scope = identity;
     try {
       // Recheck immediately before the single signing request; never sign on failed reads.
-      const preview = await readSend({ action: 'preview', ...intent });
+      const preview = await read({ action: 'preview', ...intent });
       if (!alive.current || currentIdentity.current !== scope) return;
       if (!/^\d+$/.test(preview.estimatedNetworkCost) || preview.chainId !== 1)
         throw new Error('Invalid network estimate');
@@ -174,10 +203,20 @@ export default function SendModal({
     setRecipient('');
     setError('');
   }
+  const selectedBalance = balances?.find((t) => t.symbol === symbol);
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Send">
-      <div className="space-y-4">
-        <p className="badge-info">Ethereum mainnet · Chain ID 1</p>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Send"
+      suspendFocusTrap={stage === 'requesting-signature'}
+    >
+      <div className="send-flow space-y-4">
+        <div className="network-banner">
+          <span className="eyebrow">NETWORK</span>
+          <strong>Ethereum</strong>
+          <span>One transfer. No A3 fee.</span>
+        </div>
         {stage === 'form' ? (
           <>
             <label className="block">
@@ -193,12 +232,19 @@ export default function SendModal({
                 ))}
               </select>
             </label>
+            <p className="available-balance">
+              Available:{' '}
+              {selectedBalance
+                ? `${formatUnits(BigInt(selectedBalance.balance), selectedBalance.decimals)} ${symbol}`
+                : 'Balance unavailable'}
+            </p>
             <label className="block">
               Recipient
               <input
                 className="input-field mt-1"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
+                placeholder="0x…"
                 autoComplete="off"
                 spellCheck={false}
                 disabled={busy}
@@ -210,6 +256,7 @@ export default function SendModal({
                 className="input-field mt-1"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
                 inputMode="decimal"
                 disabled={busy}
               />
@@ -224,11 +271,13 @@ export default function SendModal({
           </>
         ) : (
           <>
-            <p role="status" className="font-semibold capitalize">
-              {stage.replace('-', ' ')}
-            </p>
+            <TransferStatus stage={stage} network="Ethereum" />
             {intent && (
-              <dl className="space-y-2 text-sm">
+              <dl className="review-details">
+                <dt>Network</dt>
+                <dd>Ethereum</dd>
+                <dt>A3 transfer fee</dt>
+                <dd>None</dd>
                 <dt>Recipient receives</dt>
                 <dd className="break-all">
                   {intent.amount} {intent.symbol}
@@ -297,7 +346,7 @@ export default function SendModal({
         )}
         {error && (
           <p role="alert" className="text-amber-300 text-sm">
-            {error}
+            {friendlyError(error)}
           </p>
         )}
       </div>
