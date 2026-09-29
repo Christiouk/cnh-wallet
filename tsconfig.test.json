@@ -16,7 +16,8 @@
     "src/hooks/usePortfolioBalances.ts",
     "src/components/**/*.tsx",
     "src/app/api/tron/route.ts",
-    "src/app/api/buy/route.ts"
+    "src/app/api/buy/route.ts",
+    "src/app/api/swap/route.ts"
   ],
   "exclude": ["node_modules", ".next", ".test-build"]
 }

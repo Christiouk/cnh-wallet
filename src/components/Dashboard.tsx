@@ -8,6 +8,7 @@ import { walletStateMessage } from '@/lib/wallet/selection';
 import { usePrices, type PricesMap } from '@/hooks/usePrices';
 import type { TokenBalance } from '@/lib/tokens';
 import Buy from './buy/Buy';
+import Swap from './swap/Swap';
 import BalanceCard from './BalanceCard';
 import ActionButtons from './ActionButtons';
 import TokenList from './TokenList';
@@ -90,6 +91,17 @@ function EthereumDashboard({ view }: { view: WalletView }) {
           </p>
         )
       }
+      renderSwap={(open, close) => (
+        <Swap
+          isOpen={open}
+          balances={tokens}
+          onClose={close}
+          onRefresh={() => {
+            refresh();
+            setBuyRevision((n) => n + 1);
+          }}
+        />
+      )}
       renderBuy={(close) => (
         <Buy
           network="ethereum"
@@ -119,6 +131,7 @@ export function EthereumPanel({
   activity,
   renderSend,
   renderBuy,
+  renderSwap,
 }: {
   view: WalletView;
   walletAddress: string;
@@ -129,12 +142,14 @@ export function EthereumPanel({
   error?: string;
   onRefresh(): void;
   activity: React.ReactNode;
+  renderSwap?(open: boolean, close: () => void): React.ReactNode;
   renderBuy?(close: () => void): React.ReactNode;
   renderSend(open: boolean, close: () => void): React.ReactNode;
 }) {
-  const [modal, setModal] = useState<'send' | 'receive' | 'buy' | null>(
-    null,
-  );
+  const [swapOpened, setSwapOpened] = useState(false);
+  const [modal, setModal] = useState<
+    'send' | 'receive' | 'buy' | 'swap' | null
+  >(null);
   const total =
     !unavailable && !loading && tokens.every((t) => prices[t.symbol])
       ? tokens.reduce(
@@ -178,6 +193,14 @@ export function EthereumPanel({
               unavailable={unavailable}
             />
             <ActionButtons
+              onSwap={
+                renderSwap
+                  ? () => {
+                      setSwapOpened(true);
+                      setModal('swap');
+                    }
+                  : undefined
+              }
               onBuy={renderBuy ? () => setModal('buy') : undefined}
               onSend={() => setModal('send')}
               onReceive={() => setModal('receive')}
@@ -216,6 +239,7 @@ export function EthereumPanel({
         onClose={close}
         walletAddress={walletAddress}
       />
+      {swapOpened && renderSwap?.(modal === 'swap', close)}
       {modal === 'buy' && renderBuy?.(close)}
       {renderSend(modal === 'send' && Boolean(walletAddress), close)}
     </>

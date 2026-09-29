@@ -1890,3 +1890,12 @@ img {
 .buy-status h3 { font-size: 21px; margin-bottom: 12px; }
 .buy-status p { line-height: 1.6; }
 .buy-return { max-width: 600px; margin: 10vh auto; padding: 24px; display: grid; gap: 24px; }
+
+.wallet-actions.has-swap { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.wallet-actions.has-swap button { padding: 10px 4px; flex-direction: column; gap: 2px; font-size: 13px; }
+.swap-asset-field { display: flex; align-items: center; gap: 12px; }
+.swap-asset-field select { flex: 1; }
+.swap-sheet .network-banner span { display: block; font-size: 13px; margin-top: 6px; }
+.swap-sheet p, .swap-sheet dd, .swap-sheet strong { overflow-wrap: anywhere; }
+.swap-sheet .explorer-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; }
+.swap-direction { text-align: center; font-size: 24px; }

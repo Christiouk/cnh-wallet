@@ -3,19 +3,21 @@ export default function ActionButtons({
   onSend,
   onReceive,
   onBuy,
+  onSwap,
   disabled,
   sendDisabled = disabled,
 }: {
   onSend(): void;
   onReceive(): void;
   onBuy?(): void;
+  onSwap?(): void;
   disabled: boolean;
   sendDisabled?: boolean;
 }) {
   return (
     <nav
       aria-label="Wallet actions"
-      className={`wallet-actions${onBuy ? ' has-buy' : ''}`}
+      className={`wallet-actions${onSwap ? ' has-swap' : onBuy ? ' has-buy' : ''}`}
     >
       <button
         className="btn-primary"
@@ -38,6 +40,15 @@ export default function ActionButtons({
           disabled={disabled}
         >
           <span aria-hidden>+</span>Buy
+        </button>
+      )}
+      {onSwap && (
+        <button
+          className="btn-secondary"
+          onClick={onSwap}
+          disabled={disabled}
+        >
+          <span aria-hidden>⇅</span>Swap
         </button>
       )}
     </nav>
