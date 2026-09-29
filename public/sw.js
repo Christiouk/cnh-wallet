@@ -2,7 +2,7 @@
  * Pages, RSC payloads, APIs, queries and external identity/provider requests
  * always use the network; account data must never become an offline page.
  */
-const STATIC_CACHE = "a3-ui-static-v3";
+const STATIC_CACHE = "a3-ui-static-v4";
 const PRECACHE_ASSETS = [
   "/manifest.json",
   "/favicon.ico",
@@ -15,6 +15,7 @@ const PRECACHE_ASSETS = [
   "/tokens/eth.svg",
   "/tokens/usdt.svg",
   "/tokens/usdc.svg",
+  "/tokens/trx.svg",
 ];
 self.addEventListener("install", (event) => {
   event.waitUntil(

@@ -117,3 +117,57 @@ test('Send UI moves review → signature → submitted → confirming → receip
     global.clearTimeout = originalClearTimeout;
   }
 });
+
+test('touch asset choices preserve the selected token and exact amount passed to preview', async () => {
+  const previousFetch = global.fetch,
+    previousSigns = signCalls.length;
+  let preview, root;
+  global.fetch = async (_url, init) => {
+    preview = JSON.parse(init.body);
+    return Response.json({ estimatedNetworkCost: '1000', chainId: 1 });
+  };
+  try {
+    await act(async () => {
+      root = create(
+        React.createElement(Send, {
+          isOpen: true,
+          onClose() {},
+          balances: [{ symbol: 'USDT', balance: '1234567', decimals: 6 }],
+        }),
+      );
+    });
+    const choices = root.root.findAllByProps({ className: 'asset-choice' });
+    assert.equal(choices.length, 3);
+    assert.match(
+      JSON.stringify(choices[1].toJSON?.() || root.toJSON()),
+      /1.234567/,
+    );
+    await act(async () => {
+      choices[1].props.onClick();
+    });
+    assert.equal(root.root.findAllByProps({ 'aria-pressed': true }).length, 1);
+    assert.equal(
+      root.root.findAllByProps({ className: 'asset-choice' })[1].props[
+        'aria-pressed'
+      ],
+      true,
+    );
+    await act(async () => {
+      const inputs = root.root.findAllByType('input');
+      inputs[0].props.onChange({ target: { value: recipient } });
+      inputs[1].props.onChange({ target: { value: '1.234567' } });
+    });
+    await act(async () => {
+      await root.root
+        .findAllByType('button')
+        .find((b) => b.children.join('') === 'Review transfer')
+        .props.onClick();
+    });
+    assert.equal(preview.symbol, 'USDT');
+    assert.equal(preview.amount, '1.234567');
+    assert.equal(signCalls.length, previousSigns); // Changing assets and reviewing never signs.
+  } finally {
+    if (root) await act(async () => root.unmount());
+    global.fetch = previousFetch;
+  }
+});

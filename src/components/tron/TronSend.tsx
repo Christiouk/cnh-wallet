@@ -1,4 +1,5 @@
 'use client';
+import AssetIcon from '../ui/AssetIcon';
 import { useEffect, useRef, useState } from 'react';
 import {
   displayUnits,
@@ -193,17 +194,25 @@ export default function TronSend({
       <div className="send-flow space-y-4">
         <div className="network-banner">
           <span className="eyebrow">NETWORK</span>
+          <AssetIcon symbol="TRX" size={24} />
           <strong>Tron</strong>
           <span>USDT · TRC-20</span>
         </div>
         {stage === 'form' && (
           <form onSubmit={review} className="space-y-4">
-            <p className="available-balance">
-              Available:{' '}
-              {availableBalance === undefined
-                ? 'Balance unavailable'
-                : `${availableBalance} USDT`}
-            </p>
+            <div className="asset-choice asset-choice-fixed">
+              <AssetIcon symbol="USDT" size={32} />
+              <span className="asset-choice-name">
+                <strong>USDT</strong>
+                <span>Tron · TRC-20</span>
+              </span>
+              <span className="asset-choice-balance">
+                {availableBalance ?? 'Unavailable'}
+                <span>
+                  {availableBalance === undefined ? 'balance' : 'available'}
+                </span>
+              </span>
+            </div>
             <label className="block">
               Tron recipient
               <input

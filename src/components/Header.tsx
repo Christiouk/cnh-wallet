@@ -1,5 +1,6 @@
 'use client';
 import Image from 'next/image';
+import AssetIcon from './ui/AssetIcon';
 import type { A3Network } from '@/lib/wallet/networks';
 export default function Header({
   network,
@@ -25,6 +26,7 @@ export default function Header({
         </a>
         <label className="network-control">
           <span className="sr-only">Network</span>
+          <AssetIcon symbol={network === 'tron' ? 'TRX' : 'ETH'} size={22} />
           <select
             aria-label="Network"
             value={network}

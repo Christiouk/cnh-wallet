@@ -11,6 +11,7 @@ import {
   type SendStage,
 } from '@/lib/wallet/send';
 import Modal from './Modal';
+import AssetIcon from './ui/AssetIcon';
 import type { TokenBalance } from '@/lib/tokens';
 import TransferStatus, { friendlyError } from './ui/TransferStatus';
 
@@ -203,7 +204,6 @@ export function EthereumSend({
     setRecipient('');
     setError('');
   }
-  const selectedBalance = balances?.find((t) => t.symbol === symbol);
   return (
     <Modal
       isOpen={isOpen}
@@ -214,30 +214,49 @@ export function EthereumSend({
       <div className="send-flow space-y-4">
         <div className="network-banner">
           <span className="eyebrow">NETWORK</span>
+          <AssetIcon symbol="ETH" size={24} />
           <strong>Ethereum</strong>
           <span>One transfer. No A3 fee.</span>
         </div>
         {stage === 'form' ? (
           <>
-            <label className="block">
-              Asset
-              <select
-                className="input-field mt-1"
-                value={symbol}
-                onChange={(e) => setSymbol(e.target.value)}
-                disabled={busy}
-              >
-                {CURATED_TOKENS.map((t) => (
-                  <option key={t.symbol}>{t.symbol}</option>
-                ))}
-              </select>
-            </label>
-            <p className="available-balance">
-              Available:{' '}
-              {selectedBalance
-                ? `${formatUnits(BigInt(selectedBalance.balance), selectedBalance.decimals)} ${symbol}`
-                : 'Balance unavailable'}
-            </p>
+            <fieldset className="asset-picker" disabled={busy}>
+              <legend>Asset · Ethereum</legend>
+              {CURATED_TOKENS.map((token) => {
+                const balance = balances?.find(
+                  (item) => item.symbol === token.symbol,
+                );
+                return (
+                  <button
+                    type="button"
+                    className="asset-choice"
+                    key={token.symbol}
+                    aria-pressed={symbol === token.symbol}
+                    onClick={() => setSymbol(token.symbol)}
+                  >
+                    <AssetIcon symbol={token.symbol} size={32} />
+                    <span className="asset-choice-name">
+                      <strong>{token.symbol}</strong>
+                      <span>
+                        Ethereum ·{' '}
+                        <span className="token-standard">
+                          {token.isNative ? 'Native' : 'ERC-20'}
+                        </span>
+                      </span>
+                    </span>
+                    <span className="asset-choice-balance">
+                      {balance
+                        ? formatUnits(BigInt(balance.balance), balance.decimals)
+                        : 'Unavailable'}
+                      <span>{balance ? 'available' : 'balance'}</span>
+                    </span>
+                    <span className="asset-choice-check" aria-hidden>
+                      {symbol === token.symbol ? '✓' : ''}
+                    </span>
+                  </button>
+                );
+              })}
+            </fieldset>
             <label className="block">
               Recipient
               <input

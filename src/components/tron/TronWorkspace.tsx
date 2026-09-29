@@ -1,4 +1,5 @@
 'use client';
+import AssetIcon from '../ui/AssetIcon';
 import { useCallback, useEffect, useState } from 'react';
 import { useTronWallet, type TronDriver } from '@/hooks/useTronWallet';
 import { usePrices, type PricesMap } from '@/hooks/usePrices';
@@ -166,7 +167,7 @@ export function TronPanel({
       {status === 'missing' && (
         <section className="setup-panel">
           <span className="setup-mark" aria-hidden>
-            T
+            <AssetIcon symbol="TRX" size={42} />
           </span>
           <p className="eyebrow">A NEW NETWORK. YOUR SAME ACCOUNT.</p>
           <h2>Add Tron to A3.</h2>

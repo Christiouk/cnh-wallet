@@ -1,4 +1,5 @@
 'use client';
+import AssetIcon from './AssetIcon';
 import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { copyToClipboard } from '@/lib/utils';
@@ -16,10 +17,23 @@ export default function ReceiveAddress({
     <div className="receive-flow">
       <div className="network-banner">
         <span className="eyebrow">NETWORK</span>
+        <AssetIcon symbol={network === 'Tron' ? 'TRX' : 'ETH'} size={24} />
         <strong>{network}</strong>
         <span>
-          {network === 'Tron' ? 'USDT TRC-20 · TRX' : 'ETH · USDT · USDC'}
+          {network === 'Tron'
+            ? 'USDT TRC-20 · TRX'
+            : 'ETH · USDT ERC-20 · USDC ERC-20'}
         </span>
+      </div>
+      <div className="receive-assets" aria-label="Supported assets">
+        {(network === 'Tron' ? ['USDT', 'TRX'] : ['ETH', 'USDT', 'USDC']).map(
+          (symbol) => (
+            <span key={symbol}>
+              <AssetIcon symbol={symbol} size={24} />
+              {symbol}
+            </span>
+          ),
+        )}
       </div>
       <div className="qr-frame">
         <QRCodeSVG

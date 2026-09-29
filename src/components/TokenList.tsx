@@ -2,6 +2,7 @@
 import { formatUnits } from 'viem';
 import type { TokenBalance } from '@/lib/tokens';
 import type { PricesMap } from '@/hooks/usePrices';
+import AssetIcon from './ui/AssetIcon';
 import { money } from './BalanceCard';
 export function assetAmount(value: string) {
   if (!/^\d+(\.\d+)?$/.test(value)) return value;
@@ -47,16 +48,17 @@ export function AssetList({
         <ul className="asset-list">
           {rows.map((row) => (
             <li key={row.symbol}>
-              <span
-                className={`asset-mark asset-${row.symbol.toLowerCase()}`}
-                aria-hidden
-              >
-                {row.symbol === 'ETH' ? '◇' : row.symbol === 'TRX' ? 'T' : '$'}
-              </span>
+              <AssetIcon symbol={row.symbol} />
               <div className="asset-description">
-                <h3>{row.symbol}</h3>
+                <h3>{row.name}</h3>
                 <p>
-                  {row.name} · {row.standard}
+                  {row.symbol} · {network}
+                  {(row.standard === 'ERC-20' || row.standard === 'TRC-20') && (
+                    <>
+                      {' '}
+                      · <span className="token-standard">{row.standard}</span>
+                    </>
+                  )}
                 </p>
               </div>
               <div className="asset-value">

@@ -26,6 +26,7 @@ test('service worker excludes navigation, APIs, RSC, query strings, arbitrary im
         'a3-brand-v2',
         'a3-brand-static-v2',
         'a3-ui-static-v3',
+        'a3-ui-static-v4',
       ],
       delete: async (name) => deleted.push(name),
     },
@@ -44,7 +45,13 @@ test('service worker excludes navigation, APIs, RSC, query strings, arbitrary im
   for (const pathname of cached) assert(fs.existsSync('public' + pathname));
   handlers.activate({ waitUntil: (p) => (pending = p) });
   await pending;
-  assert.deepEqual(deleted, ['a3-brand-v2', 'a3-brand-static-v2']);
+  assert.deepEqual(deleted, [
+    'a3-brand-v2',
+    'a3-brand-static-v2',
+    'a3-ui-static-v3',
+  ]);
+  for (const symbol of ['eth', 'usdt', 'usdc', 'trx'])
+    assert(cached.includes(`/tokens/${symbol}.svg`));
   for (const [url, mode, method] of [
     ['/', 'navigate', 'GET'],
     ['/api/balances', 'cors', 'GET'],
