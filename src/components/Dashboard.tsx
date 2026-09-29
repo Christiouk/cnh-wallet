@@ -7,6 +7,7 @@ import { usePortfolioBalances } from '@/hooks/usePortfolioBalances';
 import { walletStateMessage } from '@/lib/wallet/selection';
 import { usePrices, type PricesMap } from '@/hooks/usePrices';
 import type { TokenBalance } from '@/lib/tokens';
+import Buy from './buy/Buy';
 import BalanceCard from './BalanceCard';
 import ActionButtons from './ActionButtons';
 import TokenList from './TokenList';
@@ -16,8 +17,12 @@ import SendModal from './SendModal';
 import TronWorkspace from './tron/TronWorkspace';
 import WalletShell, { type WalletView } from './ui/WalletShell';
 import type { A3Network } from '@/lib/wallet/networks';
-export default function Dashboard() {
-  const [network, setNetwork] = useState<A3Network>('ethereum');
+export default function Dashboard({
+  initialNetwork = 'ethereum',
+}: {
+  initialNetwork?: A3Network;
+}) {
+  const [network, setNetwork] = useState<A3Network>(initialNetwork);
   const [view, setView] = useState<WalletView>('wallet');
   const { user, evm, tron } = useEmbeddedWallets();
   const { logout } = usePrivy();
@@ -47,13 +52,15 @@ export default function Dashboard() {
 }
 function EthereumDashboard({ view }: { view: WalletView }) {
   const { user, evm } = useEmbeddedWallets();
+  const [buyRevision, setBuyRevision] = useState(0);
   const walletAddress = evm.status === 'ready' ? evm.wallet.address : '';
   const { state: portfolio, refresh } = usePortfolioBalances(
     user?.id,
     walletAddress,
   );
   const tokens = portfolio.status === 'ready' ? portfolio.balances : [];
-  const loading = portfolio.status === 'loading' || evm.status === 'loading';
+  const loading =
+    portfolio.status === 'loading' || evm.status === 'loading';
   const error =
     portfolio.status === 'rpc-error'
       ? portfolio.message
@@ -73,7 +80,7 @@ function EthereumDashboard({ view }: { view: WalletView }) {
       activity={
         walletAddress ? (
           <TransactionHistory
-            key={`${user?.id}:${walletAddress}`}
+            key={`${user?.id}:${walletAddress}:${buyRevision}`}
             walletAddress={walletAddress}
             limit={view === 'wallet' ? 5 : undefined}
           />
@@ -83,6 +90,17 @@ function EthereumDashboard({ view }: { view: WalletView }) {
           </p>
         )
       }
+      renderBuy={(close) => (
+        <Buy
+          network="ethereum"
+          address={walletAddress}
+          onClose={close}
+          onRefresh={() => {
+            refresh();
+            setBuyRevision((n) => n + 1);
+          }}
+        />
+      )}
       renderSend={(open, close) => (
         <SendModal isOpen={open} onClose={close} balances={tokens} />
       )}
@@ -100,6 +118,7 @@ export function EthereumPanel({
   onRefresh,
   activity,
   renderSend,
+  renderBuy,
 }: {
   view: WalletView;
   walletAddress: string;
@@ -110,9 +129,12 @@ export function EthereumPanel({
   error?: string;
   onRefresh(): void;
   activity: React.ReactNode;
+  renderBuy?(close: () => void): React.ReactNode;
   renderSend(open: boolean, close: () => void): React.ReactNode;
 }) {
-  const [modal, setModal] = useState<'send' | 'receive' | null>(null);
+  const [modal, setModal] = useState<'send' | 'receive' | 'buy' | null>(
+    null,
+  );
   const total =
     !unavailable && !loading && tokens.every((t) => prices[t.symbol])
       ? tokens.reduce(
@@ -131,7 +153,11 @@ export function EthereumPanel({
           <p className="eyebrow">A3 WALLET / ETHEREUM</p>
           <h1>{view === 'activity' ? 'Your activity.' : 'Your wallet.'}</h1>
         </div>
-        <button className="btn-ghost" onClick={onRefresh} disabled={loading}>
+        <button
+          className="btn-ghost"
+          onClick={onRefresh}
+          disabled={loading}
+        >
           Refresh <span aria-hidden>↻</span>
         </button>
       </div>
@@ -140,7 +166,9 @@ export function EthereumPanel({
           {error}
         </p>
       )}
-      <div className={view === 'wallet' ? 'portfolio-layout' : 'activity-page'}>
+      <div
+        className={view === 'wallet' ? 'portfolio-layout' : 'activity-page'}
+      >
         {view === 'wallet' && (
           <div className="portfolio-primary">
             <BalanceCard
@@ -150,6 +178,7 @@ export function EthereumPanel({
               unavailable={unavailable}
             />
             <ActionButtons
+              onBuy={renderBuy ? () => setModal('buy') : undefined}
               onSend={() => setModal('send')}
               onReceive={() => setModal('receive')}
               disabled={!walletAddress}
@@ -187,6 +216,7 @@ export function EthereumPanel({
         onClose={close}
         walletAddress={walletAddress}
       />
+      {modal === 'buy' && renderBuy?.(close)}
       {renderSend(modal === 'send' && Boolean(walletAddress), close)}
     </>
   );

@@ -1872,3 +1872,21 @@ img {
     height: 28px;
   }
 }
+
+/* A3 Buy: the selected chain stays explicit throughout the purchase. */
+.wallet-actions.has-buy { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.wallet-actions.has-buy button { padding-inline: 8px; }
+.buy-sheet { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.buy-asset { display: flex; align-items: center; gap: 12px; }
+.buy-asset p, .buy-provider, .buy-sheet .muted { color: var(--text-muted, #a8afb9); font-size: 13px; line-height: 1.6; }
+.buy-destination { padding: 14px; border: 1px solid var(--border, #35383e); border-radius: 12px; }
+.buy-destination code { display: block; overflow-wrap: anywhere; font-size: 13px; margin-top: 8px; }
+.buy-sheet input, .buy-sheet select { width: 100%; min-height: 48px; min-width: 0; padding: 12px; color: #f5f5f5; background: #17191e; border: 1px solid #535860; border-radius: 10px; font-size: 16px; }
+.buy-review { display: grid; gap: 16px; }
+.buy-review div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+.buy-review dd { font-weight: 600; }
+.buy-provider { padding-top: 12px; border-top: 1px solid #35383e; }
+.buy-provider span { display: block; margin-top: 5px; }
+.buy-status h3 { font-size: 21px; margin-bottom: 12px; }
+.buy-status p { line-height: 1.6; }
+.buy-return { max-width: 600px; margin: 10vh auto; padding: 24px; display: grid; gap: 24px; }

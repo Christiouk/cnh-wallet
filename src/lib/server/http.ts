@@ -34,10 +34,19 @@ export function keys(value: Record<string, unknown>, allowed: string[]) {
 }
 // Best-effort per-process protection, not a distributed quota or authentication.
 const limits = new Map<string, { count: number; expires: number }>();
-export function guard(request: Request, category: string, maximum = 60) {
+export function guard(
+  request: Request,
+  category: string,
+  maximum = 60,
+  expectedOrigin = new URL(request.url).origin,
+) {
   const origin = request.headers.get('origin');
-  if (origin && origin !== new URL(request.url).origin)
-    throw new ApiError(403, 'INVALID_ORIGIN', 'Cross-origin request rejected');
+  if (origin && origin !== expectedOrigin)
+    throw new ApiError(
+      403,
+      'INVALID_ORIGIN',
+      'Cross-origin request rejected',
+    );
   const key = `${category}:${request.headers.get('x-forwarded-for')?.split(',')[0]?.slice(0, 64) || 'unknown'}`;
   const now = Date.now();
   for (const [k, v] of limits) if (v.expires <= now) limits.delete(k);
@@ -54,7 +63,8 @@ export async function body(
   if (!request.headers.get('content-type')?.startsWith('application/json'))
     throw new ApiError(415, 'INVALID_CONTENT_TYPE', 'Expected JSON');
   const reader = request.body?.getReader();
-  if (!reader) throw new ApiError(400, 'INVALID_INPUT', 'Expected JSON body');
+  if (!reader)
+    throw new ApiError(400, 'INVALID_INPUT', 'Expected JSON body');
   let size = 0;
   let text = '';
   const decoder = new TextDecoder();

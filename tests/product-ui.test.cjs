@@ -53,13 +53,13 @@ const Dashboard = require('../.test-build/src/components/Dashboard').default;
 const Receive = require('../.test-build/src/components/ReceiveModal').default;
 const Actions = require('../.test-build/src/components/ActionButtons').default;
 Module._load = originalLoad;
-test('rendered dashboard has only Receive/Send actions and no legacy product or broad network options', () => {
+test('rendered dashboard has Receive/Send/Buy actions and no legacy product or broad network options', () => {
   const html = renderToStaticMarkup(React.createElement(Dashboard));
   for (const action of ['Send', 'Receive'])
     assert.match(html, new RegExp('>' + action + '</button>'));
   assert.doesNotMatch(
     html,
-    />(Buy|Sell|Swap|Fund|Earn|Card|Bitcoin|Base|Polygon|Arbitrum|Optimism|BNB)</,
+    />(Sell|Swap|Fund|Earn|Card|Bitcoin|Base|Polygon|Arbitrum|Optimism|BNB)</,
   );
   assert.doesNotMatch(
     html,

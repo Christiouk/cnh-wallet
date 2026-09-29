@@ -24,5 +24,11 @@ function WalletHome() {
     return <LoginScreen />;
   }
 
-  return <Dashboard />;
+  // A return hint selects a view only. Buy authorization and destinations stay server-resolved.
+  const initialNetwork =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('network') === 'tron'
+      ? 'tron'
+      : 'ethereum';
+  return <Dashboard initialNetwork={initialNetwork} />;
 }

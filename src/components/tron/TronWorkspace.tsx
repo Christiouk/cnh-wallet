@@ -1,4 +1,5 @@
 'use client';
+import Buy from '../buy/Buy';
 import AssetIcon from '../ui/AssetIcon';
 import { useCallback, useEffect, useState } from 'react';
 import { useTronWallet, type TronDriver } from '@/hooks/useTronWallet';
@@ -60,6 +61,16 @@ export default function TronWorkspace({
       driver={driver}
       config={config}
       prices={prices}
+      renderBuy={(close, refresh) =>
+        selection.status === 'ready' ? (
+          <Buy
+            network="tron"
+            address={selection.wallet.address}
+            onClose={close}
+            onRefresh={refresh}
+          />
+        ) : null
+      }
     />
   );
 }
@@ -70,7 +81,9 @@ export function TronPanel({
   driver,
   config,
   prices,
+  renderBuy,
 }: {
+  renderBuy?(close: () => void, refresh: () => void): React.ReactNode;
   prices: PricesMap;
   view?: WalletView;
   status: string;
@@ -81,7 +94,9 @@ export function TronPanel({
   const [setup, setSetup] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [modal, setModal] = useState<'send' | 'receive' | null>(null);
+  const [modal, setModal] = useState<'send' | 'receive' | 'buy' | null>(
+    null,
+  );
   const [balances, setBalances] = useState<TronBalances>();
   const [activity, setActivity] = useState<TronActivity[] | null>();
   const [revision, setRevision] = useState(0);
@@ -171,8 +186,13 @@ export function TronPanel({
           </span>
           <p className="eyebrow">A NEW NETWORK. YOUR SAME ACCOUNT.</p>
           <h2>Add Tron to A3.</h2>
-          <p>Add a Tron address to your existing A3 account for USDT TRC-20.</p>
-          <p className="muted">Your existing Ethereum wallet stays the same.</p>
+          <p>To buy USDT on Tron, enable Tron first.</p>
+          <p>
+            Add a Tron address to your existing A3 account for USDT TRC-20.
+          </p>
+          <p className="muted">
+            Your existing Ethereum wallet stays the same.
+          </p>
           <button
             className="btn-primary"
             disabled={!config.creation}
@@ -199,7 +219,9 @@ export function TronPanel({
       {owner && (
         <>
           <div
-            className={view === 'wallet' ? 'portfolio-layout' : 'activity-page'}
+            className={
+              view === 'wallet' ? 'portfolio-layout' : 'activity-page'
+            }
           >
             {view === 'wallet' && (
               <div className="portfolio-primary">
@@ -218,6 +240,7 @@ export function TronPanel({
                 />
                 <ActionButtons
                   onReceive={() => setModal('receive')}
+                  onBuy={renderBuy ? () => setModal('buy') : undefined}
                   onSend={() => setModal('send')}
                   disabled={false}
                   sendDisabled={
@@ -273,7 +296,8 @@ export function TronPanel({
                 }
                 rows={(activity || []).map((row) => ({
                   hash: row.hash,
-                  direction: row.from === owner.address ? 'Sent' : 'Received',
+                  direction:
+                    row.from === owner.address ? 'Sent' : 'Received',
                   amount: displayUnits(row.units),
                   asset: 'USDT',
                   timestamp: row.timestamp,
@@ -297,6 +321,7 @@ export function TronPanel({
               )}
             </aside>
           </div>
+          {modal === 'buy' && renderBuy?.(() => setModal(null), refresh)}
           {modal === 'receive' && (
             <TronReceive
               address={owner.address}
@@ -331,10 +356,12 @@ export function TronPanel({
         title="Enable Tron"
       >
         <div className="space-y-4">
-          <p>Add a Tron address to your existing A3 account for USDT TRC-20.</p>
           <p>
-            Your current account and Ethereum wallet stay the same. Tron sends
-            may need TRX for network costs.
+            Add a Tron address to your existing A3 account for USDT TRC-20.
+          </p>
+          <p>
+            Your current account and Ethereum wallet stay the same. Tron
+            sends may need TRX for network costs.
           </p>
           <button
             className="btn-primary w-full"
