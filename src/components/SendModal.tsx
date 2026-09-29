@@ -293,18 +293,26 @@ export function EthereumSend({
             <TransferStatus stage={stage} network="Ethereum" />
             {intent && (
               <dl className="review-details">
-                <dt>Network</dt>
-                <dd>Ethereum</dd>
-                <dt>A3 transfer fee</dt>
-                <dd>None</dd>
+                <dt>Asset</dt>
+                <dd className="review-asset">
+                  <AssetIcon symbol={intent.symbol} size={30} />
+                  <strong>{intent.symbol}</strong>
+                </dd>
                 <dt>Recipient receives</dt>
-                <dd className="break-all">
+                <dd className="review-amount">
                   {intent.amount} {intent.symbol}
+                </dd>
+                <dt>Network</dt>
+                <dd>
+                  Ethereum
+                  {intent.symbol !== 'ETH' ? ' · ERC-20' : ' · Native asset'}
                 </dd>
                 <dt>Recipient</dt>
                 <dd className="break-all font-mono">{intent.recipient}</dd>
                 <dt>From</dt>
                 <dd className="break-all font-mono">{intent.sender}</dd>
+                <dt>A3 transfer fee</dt>
+                <dd>None</dd>
                 <dt>Estimated network cost (includes 20% buffer)</dt>
                 <dd>
                   {cost ? formatUnits(BigInt(cost), 18) : 'Unavailable'} ETH
@@ -333,7 +341,7 @@ export function EthereumSend({
               <div className="text-sm break-all">
                 <p>Transaction hash</p>
                 <a
-                  className="text-brand-400 underline"
+                  className="explorer-link"
                   href={`https://etherscan.io/tx/${hash}`}
                   target="_blank"
                   rel="noopener noreferrer"

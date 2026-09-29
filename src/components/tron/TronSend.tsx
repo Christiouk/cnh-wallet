@@ -13,7 +13,8 @@ import {
 } from '@/lib/tron/core';
 import type { TronDriver } from '@/hooks/useTronWallet';
 import Modal from '../Modal';
-import TransferStatus, { friendlyError } from '../ui/TransferStatus';
+import TransferStatus from '../ui/TransferStatus';
+import TransferError from '../ui/TransferError';
 type Stage =
   | 'form'
   | 'review'
@@ -246,21 +247,42 @@ export default function TronSend({
         {stage !== 'form' && <TransferStatus stage={stage} network="Tron" />}
         {quote && stage !== 'form' && (
           <>
-            <p className="review-amount">
-              {displayUnits(quote.intent.units)} USDT
-            </p>
-            <p className="text-sm">Tron · USDT TRC-20</p>
-            <p className="break-all text-sm">To: {quote.intent.recipient}</p>
-            <p className="text-sm">A3 fee: 0 USDT</p>
+            <dl className="review-details">
+              <dt>Asset</dt>
+              <dd className="review-asset">
+                <AssetIcon symbol="USDT" size={30} />
+                <strong>USDT</strong>
+              </dd>
+              <dt>Recipient receives</dt>
+              <dd className="review-amount">
+                {displayUnits(quote.intent.units)} USDT
+              </dd>
+              <dt>Network</dt>
+              <dd>Tron · TRC-20</dd>
+              <dt>Recipient</dt>
+              <dd className="address-text">{quote.intent.recipient}</dd>
+              <dt>A3 transfer fee</dt>
+              <dd>None · 0 USDT</dd>
+              <dt>Maximum network budget</dt>
+              <dd>
+                {displayUnits(
+                  String(quote.intent.feeLimit + quote.intent.bandwidthFee),
+                )}{' '}
+                TRX
+              </dd>
+            </dl>
             <p className="text-sm">
-              Network budget: up to{' '}
-              {displayUnits(
-                String(quote.intent.feeLimit + quote.intent.bandwidthFee),
-              )}{' '}
-              TRX ({displayUnits(String(quote.intent.feeLimit))} TRX energy
-              limit plus bandwidth reserve). Actual cost may be lower; failed
-              execution can consume resources.
+              Tron network costs are paid separately in TRX. Actual cost may be
+              lower; failed execution can consume resources.
             </p>
+            <details className="network-cost-details">
+              <summary tabIndex={0}>Network cost details</summary>
+              <p>
+                {displayUnits(String(quote.intent.feeLimit))} TRX energy limit
+                plus {displayUnits(String(quote.intent.bandwidthFee))} TRX
+                bandwidth reserve.
+              </p>
+            </details>
           </>
         )}
         {stage === 'review' && (
@@ -294,11 +316,7 @@ export default function TronSend({
             </a>
           </>
         )}
-        {error && (
-          <p role="alert" className="notice">
-            {friendlyError(error)}
-          </p>
-        )}
+        {error && <TransferError message={error} />}
         {(stage === 'confirmed' || stage === 'failed') && (
           <button className="btn-ghost w-full" onClick={onClose}>
             Close

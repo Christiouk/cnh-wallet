@@ -27,6 +27,7 @@ test('service worker excludes navigation, APIs, RSC, query strings, arbitrary im
         'a3-brand-static-v2',
         'a3-ui-static-v3',
         'a3-ui-static-v4',
+        'a3-ui-static-v5',
       ],
       delete: async (name) => deleted.push(name),
     },
@@ -49,6 +50,7 @@ test('service worker excludes navigation, APIs, RSC, query strings, arbitrary im
     'a3-brand-v2',
     'a3-brand-static-v2',
     'a3-ui-static-v3',
+    'a3-ui-static-v4',
   ]);
   for (const symbol of ['eth', 'usdt', 'usdc', 'trx'])
     assert(cached.includes(`/tokens/${symbol}.svg`));
@@ -92,6 +94,11 @@ test('manifest retains A3 identity and approved install icons', () => {
   assert.equal(manifest.name, 'A3 Wallet');
   assert.equal(manifest.short_name, 'A3');
   assert.equal(manifest.display, 'standalone');
+  assert.equal(
+    manifest.orientation,
+    'any',
+    'Installed wallet must allow tablet landscape',
+  );
   assert.deepEqual(
     manifest.icons.map((i) => i.sizes),
     ['192x192', '512x512'],

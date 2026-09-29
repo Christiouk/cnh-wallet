@@ -1,4 +1,5 @@
 'use client';
+import AssetIcon from './AssetIcon';
 export type ActivityRow = {
   hash: string;
   direction: string;
@@ -57,12 +58,13 @@ export default function ActivityView({
         <ul className="activity-list">
           {rows.slice(0, limit).map((tx, index) => (
             <li key={`${tx.hash}:${index}`}>
-              <span className="activity-direction" aria-hidden>
-                {['sent', 'outgoing', 'send'].includes(
-                  tx.direction.toLowerCase(),
-                )
-                  ? '↗'
-                  : '↙'}
+              <span className="activity-artwork" aria-hidden>
+                {tx.asset &&
+                ['ETH', 'USDT', 'USDC', 'TRX'].includes(tx.asset) ? (
+                  <AssetIcon symbol={tx.asset} size={30} />
+                ) : (
+                  <span className="activity-direction">↔</span>
+                )}
               </span>
               <div className="activity-description">
                 <h3>
@@ -72,15 +74,19 @@ export default function ActivityView({
                       ? 'Received'
                       : tx.direction}
                 </h3>
+                <p className="activity-asset">
+                  {tx.asset || 'Asset unavailable'} · {network}
+                  {tx.asset === 'USDT' || tx.asset === 'USDC'
+                    ? ` · ${network === 'Tron' ? 'TRC-20' : 'ERC-20'}`
+                    : ''}
+                </p>
                 <time dateTime={new Date(tx.timestamp).toISOString()}>
                   {new Date(tx.timestamp)
                     .toISOString()
                     .slice(0, 16)
                     .replace('T', ' ') + ' UTC'}
                 </time>
-                <span className="quiet-label">
-                  {network} · {tx.status}
-                </span>
+                <span className="quiet-label">{tx.status}</span>
               </div>
               <div className="activity-amount">
                 <p>

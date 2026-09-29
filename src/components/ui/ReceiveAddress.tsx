@@ -25,15 +25,29 @@ export default function ReceiveAddress({
             : 'ETH · USDT ERC-20 · USDC ERC-20'}
         </span>
       </div>
-      <div className="receive-assets" aria-label="Supported assets">
-        {(network === 'Tron' ? ['USDT', 'TRX'] : ['ETH', 'USDT', 'USDC']).map(
-          (symbol) => (
-            <span key={symbol}>
-              <AssetIcon symbol={symbol} size={24} />
-              {symbol}
-            </span>
-          ),
-        )}
+      <div className="receive-identity">
+        <p className="field-label">
+          Assets supported at this {network} address
+        </p>
+        <ul className="receive-assets" aria-label="Supported assets">
+          {(network === 'Tron' ? ['USDT', 'TRX'] : ['ETH', 'USDT', 'USDC']).map(
+            (symbol) => (
+              <li key={symbol}>
+                <AssetIcon symbol={symbol} size={28} />
+                <span>
+                  <strong>{symbol}</strong>
+                  <span>
+                    {symbol === 'ETH' || symbol === 'TRX'
+                      ? 'Native asset'
+                      : network === 'Tron'
+                        ? 'TRC-20'
+                        : 'ERC-20'}
+                  </span>
+                </span>
+              </li>
+            ),
+          )}
+        </ul>
       </div>
       <div className="qr-frame">
         <QRCodeSVG

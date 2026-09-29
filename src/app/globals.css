@@ -1748,3 +1748,127 @@ img {
 .token-standard {
   white-space: nowrap;
 }
+
+/* A3-02B: explicit asset identity from receiving through confirmation. */
+.receive-identity > .field-label {
+  text-align: center;
+  margin-bottom: 14px;
+}
+.receive-assets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  gap: 16px;
+}
+.receive-assets li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.receive-assets li > span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.receive-assets strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+.receive-assets li > span > span {
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.network-banner strong {
+  font-size: 17px;
+}
+.review-asset {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.review-asset strong {
+  font-weight: 500;
+  font-size: 18px;
+}
+.activity-artwork {
+  padding-top: 3px;
+}
+.activity-asset {
+  margin-top: 5px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.activity-list li {
+  grid-template-columns: 32px minmax(0, 1fr) minmax(0, 0.9fr);
+}
+.activity-description {
+  min-width: 0;
+}
+.activity-description .quiet-label {
+  line-height: 1.6;
+}
+.network-cost-details,
+.resource-notice details {
+  font-size: 12px;
+}
+.network-cost-details summary,
+.resource-notice summary {
+  cursor: pointer;
+  min-height: 48px;
+  padding-block: 14px;
+  color: var(--muted);
+}
+.network-cost-details p,
+.resource-notice p {
+  font-size: 12px;
+  line-height: 1.85;
+}
+.resource-notice > strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.resource-notice {
+  border-left: 3px solid var(--bronze);
+}
+.settings-section-heading {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+.account-security {
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+  margin-bottom: 28px;
+}
+.account-security p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.85;
+}
+.account-panel .settings-links {
+  margin-top: 0;
+}
+@media (max-width: 359px) {
+  .receive-assets {
+    gap: 12px;
+  }
+  .receive-assets li {
+    gap: 5px;
+  }
+  .receive-assets .asset-icon {
+    width: 24px;
+    height: 24px;
+  }
+  .activity-list li {
+    grid-template-columns: 28px minmax(0, 1fr) minmax(0, 0.9fr);
+    gap: 8px;
+  }
+  .activity-artwork .asset-icon {
+    width: 28px;
+    height: 28px;
+  }
+}

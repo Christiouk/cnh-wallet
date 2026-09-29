@@ -70,7 +70,9 @@ export default function Fixture() {
                         ? '0'
                         : scenario === 'zero'
                           ? '0'
-                          : '18000000',
+                          : scenario === 'small'
+                            ? '1'
+                            : '18000000',
                   },
             usdt: {
               status: 'ready',
@@ -180,7 +182,9 @@ export default function Fixture() {
       scenario === 'zero'
         ? '0'
         : scenario === 'small'
-          ? '1'
+          ? token.symbol === 'ETH'
+            ? '1000000000000'
+            : '1'
           : scenario === 'large' && token.symbol === 'USDT'
             ? '987654321123456'
             : ['1240000000000000000', '4850000000', '500000000'][index],
@@ -227,7 +231,10 @@ export default function Fixture() {
   };
   return (
     <>
-      <aside className="fixture-toolbar" aria-label="Local visual test controls">
+      <aside
+        className="fixture-toolbar"
+        aria-label="Local visual test controls"
+      >
         <span>Synthetic local preview · no live accounts or transfers</span>
         <label>
           Fixture

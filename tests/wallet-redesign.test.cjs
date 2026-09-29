@@ -187,3 +187,50 @@ test('opening Settings preserves the mounted wallet and its confirmation lifecyc
   await act(async () => root.unmount());
   assert.equal(unmounts, 1);
 });
+
+test('activity identifies known assets locally without inventing an asset for contract activity', () => {
+  const base = {
+    network: 'Ethereum',
+    state: 'ready',
+    onRefresh() {},
+    note: 'Provider scope retained',
+  };
+  const row = {
+    hash: 'synthetic',
+    direction: 'Sent',
+    amount: '1.25',
+    asset: 'USDT',
+    timestamp: 1700000000000,
+    status: 'confirmed',
+    explorer: 'https://example.test/tx',
+  };
+  const known = render(Activity, { ...base, rows: [row] });
+  assert.match(known, /tokens\/usdt.svg/);
+  assert.match(known, /ERC-20/);
+  assert.match(known, /Ethereum/);
+  const unknown = render(Activity, {
+    ...base,
+    rows: [
+      { ...row, asset: null, amount: null, direction: 'Contract activity' },
+    ],
+  });
+  assert.match(unknown, /Asset unavailable/);
+  assert.match(unknown, /Amount unavailable/);
+  assert.doesNotMatch(unknown, /tokens\//);
+});
+test('Tron resource notice explains network cost, retains details and never implies an A3 charge', () => {
+  const ErrorView =
+    require('../.test-build/src/components/ui/TransferError').default;
+  const html = render(ErrorView, {
+    message: 'Network resource required. Add TRX before sending.',
+  });
+  assert.match(html, /role="alert"/);
+  assert.match(html, /Network resource required/);
+  assert.match(html, /not an A3 charge/);
+  assert.match(html, /<summary tabindex="0">Network details/);
+  assert.match(html, /Add TRX before sending/);
+  assert.doesNotMatch(
+    render(ErrorView, { message: '<raw provider secret>' }),
+    /raw provider secret/,
+  );
+});

@@ -19,7 +19,7 @@ export default function TransferStatus({
   const labels: Record<string, string> = {
     review: 'Review your transfer',
     'requesting-signature': 'Requesting approval',
-    signing: 'Requesting authorization…',
+    signing: 'Requesting approval',
     submitted: 'Submitted — awaiting network confirmation',
     confirming: `Confirming on ${network}…`,
     confirmed: 'Transfer confirmed',

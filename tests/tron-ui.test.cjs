@@ -123,12 +123,12 @@ test('Tron Send lifecycle signs once, hash is not success, pending survives reop
         .props.onSubmit({ preventDefault() {} });
     });
     assert.match(text(), /Confirm and authorize/);
-    assert.match(text(), /A3 fee: 0/);
+    assert.match(text(), /None · 0 USDT/);
     let sending;
     await act(async () => {
       sending = button('Confirm and authorize').props.onClick();
     });
-    assert.match(text(), /Requesting authorization/);
+    assert.match(text(), /Requesting approval/);
     assert.equal(signed, 1);
     await act(async () => {
       resolveSignature('0x' + '1'.repeat(128));

@@ -4,7 +4,7 @@
   "description": "A3 Wallet \u2014 a self-custody wallet. YOUR ASSETS. YOUR CONTROL.",
   "start_url": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#0B0D0F",
   "theme_color": "#0B0D0F",
   "icons": [

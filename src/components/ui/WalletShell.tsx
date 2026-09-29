@@ -28,6 +28,7 @@ export function AccountPanel({
         {account.email || 'Signed in to A3 Wallet'}
       </p>
       <div className="account-addresses">
+        <h3 className="settings-section-heading">Wallet addresses</h3>
         {(['ethereum', 'tron'] as const).map((network) => (
           <div key={network} className="address-item">
             <div className="section-line">
@@ -62,10 +63,15 @@ export function AccountPanel({
           </div>
         ))}
       </div>
-      <p className="muted small">
-        Authentication powered by Privy. Always check the network before
-        receiving or sending.
-      </p>
+      <section className="account-security">
+        <h3 className="settings-section-heading">Security</h3>
+        <p>
+          Authentication powered by Privy. Check the recipient, network and
+          amount before approving a transfer. Never share your recovery details
+          or verification codes.
+        </p>
+      </section>
+      <h3 className="settings-section-heading">Help &amp; legal</h3>
       <nav
         className="settings-links"
         aria-label={

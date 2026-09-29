@@ -2,7 +2,7 @@
  * Pages, RSC payloads, APIs, queries and external identity/provider requests
  * always use the network; account data must never become an offline page.
  */
-const STATIC_CACHE = "a3-ui-static-v4";
+const STATIC_CACHE = "a3-ui-static-v5";
 const PRECACHE_ASSETS = [
   "/manifest.json",
   "/favicon.ico",
