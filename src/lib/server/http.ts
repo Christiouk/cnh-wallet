@@ -38,7 +38,9 @@ export function guard(
   request: Request,
   category: string,
   maximum = 60,
-  expectedOrigin = new URL(request.url).origin,
+  // Next may construct request.url with an internal hostname behind its proxy.
+  // Host is the HTTP request authority; never trust caller-supplied forwarded hosts.
+  expectedOrigin = `${new URL(request.url).protocol}//${request.headers.get('host') || new URL(request.url).host}`,
 ) {
   const origin = request.headers.get('origin');
   if (origin && origin !== expectedOrigin)
