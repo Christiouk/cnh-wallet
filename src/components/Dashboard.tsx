@@ -1,239 +1,247 @@
 'use client';
-
-import { useState, useEffect, useCallback } from 'react';
-import { usePrivy, useWallets } from '@privy-io/react-auth';
-import Header from './Header';
+import { useState } from 'react';
+import { usePrivy } from '@privy-io/react-auth';
+import { formatUnits } from 'viem';
+import { useEmbeddedWallets } from '@/hooks/useEmbeddedWallets';
+import { usePortfolioBalances } from '@/hooks/usePortfolioBalances';
+import { walletStateMessage } from '@/lib/wallet/selection';
+import { usePrices, type PricesMap } from '@/hooks/usePrices';
+import type { TokenBalance } from '@/lib/tokens';
+import Buy from './buy/Buy';
+import Swap from './swap/Swap';
 import BalanceCard from './BalanceCard';
 import ActionButtons from './ActionButtons';
 import TokenList from './TokenList';
-import ContactPanel from './ContactPanel';
-import NotesPanel from './NotesPanel';
-import EarnPanel from './EarnPanel';
-import SupportTickets from './SupportTickets';
 import TransactionHistory from './TransactionHistory';
-import BitcoinPanel from './BitcoinPanel';
 import ReceiveModal from './ReceiveModal';
 import SendModal from './SendModal';
-import TradeModal from './TradeModal';
-import SwapModal from './SwapModal';
-import TransakModal from './TransakModal';
-import PriceTicker from './PriceTicker';
-import { CURATED_TOKENS, TokenBalance } from '@/lib/tokens';
-import { formatBalance, generateReferenceCode } from '@/lib/utils';
-import { usePrices } from '@/hooks/usePrices';
-
-export default function Dashboard() {
-  const { user } = usePrivy();
-  const { wallets, ready: walletsReady } = useWallets();
-
-  const [tokenBalances, setTokenBalances] = useState<TokenBalance[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [activeNetwork, setActiveNetwork] = useState('ethereum');
-
-  // Modal states
-  const [showReceive, setShowReceive] = useState(false);
-  const [showSend, setShowSend] = useState(false);
-  const [showSell, setShowSell] = useState(false);
-  const [showSwap, setShowSwap] = useState(false);
-  const [showBuy, setShowBuy] = useState(false);
-
-  // Live prices
-  const { prices, isLoading: pricesLoading } = usePrices();
-
-  // Get wallet address from Privy
-  const walletAddress = (() => {
-    // Try embedded wallet first from useWallets
-    if (walletsReady && wallets.length > 0) {
-      const embedded = wallets.find((w) => w.walletClientType === 'privy');
-      if (embedded) return embedded.address;
-      return wallets[0].address;
-    }
-    // Fallback: try user linked accounts
-    if (user?.linkedAccounts) {
-      const walletAccount = user.linkedAccounts.find(
-        (account: any) => account.type === 'wallet'
-      );
-      if (walletAccount && 'address' in walletAccount) {
-        return (walletAccount as any).address as string;
-      }
-    }
-    return '';
-  })();
-
-  const userEmail = user?.email?.address || '';
-  const referenceCode = generateReferenceCode(walletAddress || userEmail);
-
-  const fetchBalances = useCallback(async () => {
-    if (!walletAddress) return;
-
-    try {
-      setError(null);
-      const response = await fetch('/api/balances', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          walletAddress,
-          tokens: CURATED_TOKENS.map((t) => ({
-            symbol: t.symbol,
-            address: t.address,
-          })),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch balances');
-      }
-
-      const data = await response.json();
-
-      const balances: TokenBalance[] = CURATED_TOKENS.map((token) => {
-        const result = data.balances?.find(
-          (b: any) => b.symbol === token.symbol
-        );
-        const balance = result?.balance || '0';
-        return {
-          ...token,
-          balance,
-          formattedBalance: formatBalance(balance, token.decimals),
-        };
-      });
-
-      setTokenBalances(balances);
-    } catch (err) {
-      console.error('Failed to fetch balances:', err);
-      setError('Unable to load balances. Please try again.');
-      // Set zero balances on error
-      setTokenBalances(
-        CURATED_TOKENS.map((token) => ({
-          ...token,
-          balance: '0',
-          formattedBalance: '0',
-        }))
-      );
-    }
-  }, [walletAddress]);
-
-  useEffect(() => {
-    if (walletAddress) {
-      setIsLoading(true);
-      fetchBalances().finally(() => setIsLoading(false));
-    }
-  }, [walletAddress, fetchBalances]);
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await fetchBalances();
-    setIsRefreshing(false);
-  };
-
-  // Calculate total USD portfolio value
-  const totalUsdValue = tokenBalances.reduce((sum, token) => {
-    const price = prices[token.symbol]?.usd || 0;
-    const balance = parseFloat(formatBalance(token.balance, token.decimals));
-    return sum + balance * price;
-  }, 0);
-
-  const ethBalance = tokenBalances.find((t) => t.symbol === 'ETH')?.formattedBalance || '0';
-
+import TronWorkspace from './tron/TronWorkspace';
+import WalletShell, { type WalletView } from './ui/WalletShell';
+import type { A3Network } from '@/lib/wallet/networks';
+export default function Dashboard({
+  initialNetwork = 'ethereum',
+}: {
+  initialNetwork?: A3Network;
+}) {
+  const [network, setNetwork] = useState<A3Network>(initialNetwork);
+  const [view, setView] = useState<WalletView>('wallet');
+  const { user, evm, tron } = useEmbeddedWallets();
+  const { logout } = usePrivy();
   return (
-    <div className="min-h-screen bg-surface">
-      <Header
-        walletAddress={walletAddress}
-        onRefresh={handleRefresh}
-        isRefreshing={isRefreshing}
-        activeNetwork={activeNetwork}
-        onNetworkChange={setActiveNetwork}
-      />
-
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* Error banner */}
-        {error && (
-          <div className="p-3.5 rounded-xl bg-red-500/5 border border-red-500/15 flex items-center gap-3 animate-fade-in">
-            <svg className="w-4 h-4 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-sm text-red-300">{error}</p>
-            <button
-              onClick={handleRefresh}
-              className="ml-auto text-xs text-red-400 hover:text-red-300 font-medium"
-            >
-              Retry
-            </button>
-          </div>
-        )}
-
-        {/* Top section: Balance + Notes */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-3 space-y-5">
+    <WalletShell
+      network={network}
+      onNetworkChange={(n) => {
+        setNetwork(n);
+        setView('wallet');
+      }}
+      view={view}
+      onViewChange={setView}
+      account={{
+        email: user?.email?.address,
+        ethereum: evm.status === 'ready' ? evm.wallet.address : undefined,
+        tron: tron?.status === 'ready' ? tron.wallet.address : undefined,
+      }}
+      onLogout={logout}
+    >
+      {network === 'ethereum' ? (
+        <EthereumDashboard key={user?.id} view={view} />
+      ) : (
+        <TronWorkspace key={user?.id} view={view} />
+      )}
+    </WalletShell>
+  );
+}
+function EthereumDashboard({ view }: { view: WalletView }) {
+  const { user, evm } = useEmbeddedWallets();
+  const [buyRevision, setBuyRevision] = useState(0);
+  const walletAddress = evm.status === 'ready' ? evm.wallet.address : '';
+  const { state: portfolio, refresh } = usePortfolioBalances(
+    user?.id,
+    walletAddress,
+  );
+  const tokens = portfolio.status === 'ready' ? portfolio.balances : [];
+  const loading =
+    portfolio.status === 'loading' || evm.status === 'loading';
+  const error =
+    portfolio.status === 'rpc-error'
+      ? portfolio.message
+      : walletStateMessage(evm.status);
+  const { prices, isLoading: pricesLoading } = usePrices();
+  return (
+    <EthereumPanel
+      key={`${user?.id}:${walletAddress}`}
+      view={view}
+      walletAddress={walletAddress}
+      tokens={tokens}
+      prices={pricesLoading ? {} : prices}
+      loading={loading}
+      unavailable={portfolio.status !== 'ready'}
+      error={error || undefined}
+      onRefresh={refresh}
+      activity={
+        walletAddress ? (
+          <TransactionHistory
+            key={`${user?.id}:${walletAddress}:${buyRevision}`}
+            walletAddress={walletAddress}
+            limit={view === 'wallet' ? 5 : undefined}
+          />
+        ) : (
+          <p className="empty-state">
+            Activity is available when your Ethereum wallet is connected.
+          </p>
+        )
+      }
+      renderSwap={(open, close) => (
+        <Swap
+          isOpen={open}
+          balances={tokens}
+          onClose={close}
+          onRefresh={() => {
+            refresh();
+            setBuyRevision((n) => n + 1);
+          }}
+        />
+      )}
+      renderBuy={(close) => (
+        <Buy
+          network="ethereum"
+          address={walletAddress}
+          onClose={close}
+          onRefresh={() => {
+            refresh();
+            setBuyRevision((n) => n + 1);
+          }}
+        />
+      )}
+      renderSend={(open, close) => (
+        <SendModal isOpen={open} onClose={close} balances={tokens} />
+      )}
+    />
+  );
+}
+export function EthereumPanel({
+  view,
+  walletAddress,
+  tokens,
+  prices,
+  loading,
+  unavailable,
+  error,
+  onRefresh,
+  activity,
+  renderSend,
+  renderBuy,
+  renderSwap,
+}: {
+  view: WalletView;
+  walletAddress: string;
+  tokens: TokenBalance[];
+  prices: PricesMap;
+  loading: boolean;
+  unavailable: boolean;
+  error?: string;
+  onRefresh(): void;
+  activity: React.ReactNode;
+  renderSwap?(open: boolean, close: () => void): React.ReactNode;
+  renderBuy?(close: () => void): React.ReactNode;
+  renderSend(open: boolean, close: () => void): React.ReactNode;
+}) {
+  const [swapOpened, setSwapOpened] = useState(false);
+  const [modal, setModal] = useState<
+    'send' | 'receive' | 'buy' | 'swap' | null
+  >(null);
+  const total =
+    !unavailable && !loading && tokens.every((t) => prices[t.symbol])
+      ? tokens.reduce(
+          (sum, t) =>
+            sum +
+            Number(formatUnits(BigInt(t.balance), t.decimals)) *
+              prices[t.symbol].usd,
+          0,
+        )
+      : undefined;
+  const close = () => setModal(null);
+  return (
+    <>
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow">A3 WALLET / ETHEREUM</p>
+          <h1>{view === 'activity' ? 'Your activity.' : 'Your wallet.'}</h1>
+        </div>
+        <button
+          className="btn-ghost"
+          onClick={onRefresh}
+          disabled={loading}
+        >
+          Refresh <span aria-hidden>↻</span>
+        </button>
+      </div>
+      {error && (
+        <p className="notice" role="status">
+          {error}
+        </p>
+      )}
+      <div
+        className={view === 'wallet' ? 'portfolio-layout' : 'activity-page'}
+      >
+        {view === 'wallet' && (
+          <div className="portfolio-primary">
             <BalanceCard
-              totalEthBalance={ethBalance}
-              totalUsdValue={!pricesLoading ? totalUsdValue : undefined}
-              isLoading={isLoading}
+              network="Ethereum"
+              totalUsdValue={total}
+              isLoading={loading}
+              unavailable={unavailable}
             />
             <ActionButtons
-              onBuy={() => setShowBuy(true)}
-              onSell={() => setShowSell(true)}
-              onSend={() => setShowSend(true)}
-              onReceive={() => setShowReceive(true)}
-              onSwap={() => setShowSwap(true)}
-              walletAddress={walletAddress || undefined}
+              onSwap={
+                renderSwap
+                  ? () => {
+                      setSwapOpened(true);
+                      setModal('swap');
+                    }
+                  : undefined
+              }
+              onBuy={renderBuy ? () => setModal('buy') : undefined}
+              onSend={() => setModal('send')}
+              onReceive={() => setModal('receive')}
+              disabled={!walletAddress}
             />
+            <TokenList
+              tokens={tokens}
+              isLoading={loading}
+              prices={prices}
+              unavailable={unavailable}
+            />
+            <p className="portfolio-footnote">
+              One network. Your assets.
+              <br />
+              Receive and send ETH, USDT and USDC on Ethereum.
+            </p>
           </div>
-          <div className="lg:col-span-2">
-            <NotesPanel referenceCode={referenceCode} />
-          </div>
-        </div>
-
-        {/* Live Price Ticker */}
-        <PriceTicker prices={prices} loading={pricesLoading} />
-
-        {/* Token List with live prices */}
-        <TokenList tokens={tokenBalances} isLoading={isLoading} prices={prices} />
-
-        {/* Earn / Yield — Aave v3 */}
-        <EarnPanel walletAddress={walletAddress || undefined} />
-
-        {/* Transaction History */}
-        {walletAddress && <TransactionHistory walletAddress={walletAddress} />}
-
-        {/* Bitcoin Network */}
-        {activeNetwork === 'bitcoin' && <BitcoinPanel btcUsdPrice={prices['BTC']?.usd || 0} />}
-
-        {/* Support Tickets */}
-        <SupportTickets />
-
-        {/* Contact — bottom of page */}
-        <ContactPanel />
-      </main>
-
-      {/* Footer */}
-      <footer className="max-w-6xl mx-auto px-4 sm:px-6 py-6 mt-4">
-        <div className="border-t border-surface-800/50 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-surface-600">
-            &copy; {new Date().getFullYear()} Morsands. All rights reserved.
-          </p>
-          <p className="text-xs text-surface-600">
-            Multi-Chain &middot; Powered by Privy
-          </p>
-        </div>
-      </footer>
-
-      {/* Modals */}
+        )}
+        <aside className="portfolio-secondary">
+          {activity}
+          {view === 'wallet' && (
+            <div className="network-context">
+              <p className="eyebrow">YOUR NETWORK</p>
+              <h3>Ethereum</h3>
+              <p>
+                ETH powers network transactions. Check the receiving network
+                before every transfer.
+              </p>
+              <span>No A3 transfer fee.</span>
+            </div>
+          )}
+        </aside>
+      </div>
       <ReceiveModal
-        isOpen={showReceive}
-        onClose={() => setShowReceive(false)}
+        isOpen={modal === 'receive' && Boolean(walletAddress)}
+        onClose={close}
         walletAddress={walletAddress}
       />
-      <SendModal isOpen={showSend} onClose={() => setShowSend(false)} />
-      <TradeModal isOpen={showSell} onClose={() => setShowSell(false)} type="sell" prices={prices} />
-      <SwapModal isOpen={showSwap} onClose={() => setShowSwap(false)} prices={prices} />
-      <TransakModal
-        isOpen={showBuy}
-        onClose={() => setShowBuy(false)}
-        walletAddress={walletAddress || undefined}
-      />
-    </div>
+      {swapOpened && renderSwap?.(modal === 'swap', close)}
+      {modal === 'buy' && renderBuy?.(close)}
+      {renderSend(modal === 'send' && Boolean(walletAddress), close)}
+    </>
   );
 }

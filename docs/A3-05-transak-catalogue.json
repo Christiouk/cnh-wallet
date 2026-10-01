@@ -1,0 +1,83 @@
+{
+  "checkedOn": "2026-09-26",
+  "scope": "Public read-only catalogues; no partner quote or widget session; no customer data",
+  "sources": [
+    "https://api.transak.com/cryptocoverage/api/v1/public/crypto-currencies",
+    "https://api.transak.com/fiat/public/v1/currencies/fiat-currencies"
+  ],
+  "crypto": {
+    "symbol": "USDT",
+    "uniqueId": "USDTtron",
+    "address": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+    "decimals": 6,
+    "isAllowed": true,
+    "isSuspended": false,
+    "network": {
+      "name": "tron",
+      "fiatCurrenciesNotSupported": [],
+      "chainId": null
+    },
+    "kycCountriesNotSupported": [
+      "US",
+      "CA"
+    ]
+  },
+  "fiat": {
+    "symbol": "GBP",
+    "supportingCountries": [
+      "GB"
+    ],
+    "isAllowed": true
+  },
+  "paymentOptions": [
+    {
+      "id": "gbp_bank_transfer",
+      "name": "Manual Bank Transfer",
+      "isActive": true,
+      "supportedCountryCode": null
+    },
+    {
+      "id": "pm_open_banking",
+      "name": "Easy Bank Transfer",
+      "isActive": true,
+      "supportedCountryCode": [
+        "IE",
+        "FR",
+        "DE",
+        "ES",
+        "NL",
+        "EE",
+        "LT",
+        "LV",
+        "PT",
+        "BE",
+        "AT",
+        "DK",
+        "FI",
+        "IT",
+        "NO",
+        "PL",
+        "SE",
+        "GB"
+      ]
+    },
+    {
+      "id": "credit_debit_card",
+      "name": "Card Payment",
+      "isActive": true,
+      "supportedCountryCode": null
+    },
+    {
+      "id": "apple_pay",
+      "name": "Apple Pay",
+      "isActive": true,
+      "supportedCountryCode": null
+    },
+    {
+      "id": "google_pay",
+      "name": "Google Pay",
+      "isActive": true,
+      "supportedCountryCode": null
+    }
+  ]
+}

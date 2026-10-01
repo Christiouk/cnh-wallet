@@ -20,12 +20,14 @@ export function usePrices() {
       const response = await fetch('/api/prices');
       if (!response.ok) throw new Error('Failed to fetch prices');
       const data = await response.json();
-      if (data.prices) {
+      if (data.prices && !data.stale) {
         setPrices(data.prices);
         setLastUpdated(new Date());
+      } else {
+        setPrices({});
       }
     } catch (err) {
-      console.error('usePrices error:', err);
+      setPrices({});
     } finally {
       setIsLoading(false);
     }

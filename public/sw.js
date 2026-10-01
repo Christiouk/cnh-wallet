@@ -1,108 +1,68 @@
-/**
- * Morsands — Service Worker
- * Provides offline caching for the PWA experience.
- * Strategy: Network-first with cache fallback for pages,
- * Cache-first for static assets.
+/** A3 Wallet: cache only explicitly approved public static files.
+ * Pages, RSC payloads, APIs, queries and external identity/provider requests
+ * always use the network; account data must never become an offline page.
  */
-
-const CACHE_NAME = 'morsands-v1';
-const STATIC_CACHE = 'morsands-static-v1';
-
-// Static assets to pre-cache on install
+const STATIC_CACHE = "a3-ui-static-v5";
 const PRECACHE_ASSETS = [
-  '/',
-  '/manifest.json',
-  '/favicon.ico',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
-  '/icons/apple-touch-icon.png',
-  '/tokens/eth.svg',
-  '/tokens/usdt.svg',
-  '/tokens/usdc.svg',
-  '/tokens/weth.svg',
+  "/manifest.json",
+  "/favicon.ico",
+  "/icons/icon-192x192.png",
+  "/icons/icon-512x512.png",
+  "/icons/apple-touch-icon.png",
+  "/brand/a3-wallet-horizontal-light.svg",
+  "/brand/a3-login-logo-light-transparent.png",
+  "/brand/a3-portal-symbol-gradient-1024.png",
+  "/tokens/eth.svg",
+  "/tokens/usdt.svg",
+  "/tokens/usdc.svg",
+  "/tokens/trx.svg",
 ];
-
-// Install: pre-cache static assets
-self.addEventListener('install', (event) => {
+self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS);
-    })
+    caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE_ASSETS)),
   );
   self.skipWaiting();
 });
-
-// Activate: clean up old caches
-self.addEventListener('activate', (event) => {
+self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME && name !== STATIC_CACHE)
-          .map((name) => caches.delete(name))
-      );
-    })
+    caches
+      .keys()
+      .then((names) =>
+        Promise.all(
+          names
+            .filter((name) => name !== STATIC_CACHE)
+            .map((name) => caches.delete(name)),
+        ),
+      )
+      .then(() => self.clients.claim()),
   );
-  self.clients.claim();
 });
-
-// Fetch: network-first for navigation, cache-first for static assets
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // Skip non-GET requests
-  if (request.method !== 'GET') return;
-
-  // Skip API calls and external requests — always go to network
-  if (url.pathname.startsWith('/api/') || url.origin !== self.location.origin) {
-    return;
-  }
-
-  // Static assets (images, fonts, icons): cache-first
+self.addEventListener("fetch", (event) => {
+  const request = event.request,
+    url = new URL(request.url);
   if (
-    url.pathname.startsWith('/icons/') ||
-    url.pathname.startsWith('/tokens/') ||
-    url.pathname.endsWith('.svg') ||
-    url.pathname.endsWith('.png') ||
-    url.pathname.endsWith('.ico') ||
-    url.pathname.endsWith('.woff2') ||
-    url.pathname.endsWith('.woff')
-  ) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
+    request.method !== "GET" ||
+    url.origin !== self.location.origin ||
+    url.search ||
+    request.mode === "navigate" ||
+    !PRECACHE_ASSETS.includes(url.pathname)
+  )
+    return;
+  event.respondWith(
+    caches.match(request).then(
+      (cached) =>
+        cached ||
+        fetch(request).then((response) => {
+          if (response.ok && response.type === "basic") {
+            const copy = response.clone();
+            event.waitUntil(
+              caches
+                .open(STATIC_CACHE)
+                .then((cache) => cache.put(request, copy)),
+            );
           }
           return response;
-        });
-      })
-    );
-    return;
-  }
-
-  // Navigation and other requests: network-first with cache fallback
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-        }
-        return response;
-      })
-      .catch(() => {
-        return caches.match(request).then((cached) => {
-          if (cached) return cached;
-          // Fallback to cached root for navigation requests
-          if (request.mode === 'navigate') {
-            return caches.match('/');
-          }
-          return new Response('Offline', { status: 503 });
-        });
-      })
+        }),
+    ),
   );
 });

@@ -6,16 +6,19 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint . --ext .js,.ts,.tsx --ignore-pattern .next --ignore-pattern .test-build",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc -p tsconfig.test.json && node --test .test-build/tests/*.test.js tests/*.test.cjs"
   },
   "dependencies": {
+    "@privy-io/node": "0.35.0",
     "@privy-io/react-auth": "^3.13.1",
-    "@transak/ui-js-sdk": "^1.0.0",
-    "ethers": "^6.16.0",
-    "next": "^14.2.35",
-    "qrcode.react": "^3.2.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "next": "15.5.26",
+    "qrcode.react": "^4.2.0",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "server-only": "0.0.1",
+    "tronweb": "6.5.1",
     "viem": "^2.46.1"
   },
   "devDependencies": {
@@ -23,8 +26,19 @@
     "@types/node": "^25.2.3",
     "@types/react": "^19.2.14",
     "autoprefixer": "^10.4.24",
+    "eslint": "8.57.1",
+    "eslint-config-next": "15.5.26",
     "postcss": "^8.5.6",
+    "react-test-renderer": "19.2.6",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "^8.5.28"
+    },
+    "ws@^7.0.0": "^7.5.11",
+    "ws@^8.0.0": "^8.21.3",
+    "axios": "1.20.0"
   }
 }

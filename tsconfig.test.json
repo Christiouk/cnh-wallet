@@ -1,0 +1,28 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES2020",
+    "noEmit": false,
+    "incremental": false,
+    "outDir": ".test-build",
+    "rootDir": ".",
+    "isolatedModules": false,
+    "jsx": "react-jsx"
+  },
+  "include": [
+    "tests/**/*.test.ts",
+    "src/hooks/usePortfolioBalances.ts",
+    "src/components/**/*.tsx",
+    "src/app/api/tron/route.ts",
+    "src/app/api/buy/route.ts",
+    "src/app/api/swap/route.ts",
+    "src/providers/PrivyProviderWrapper.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    ".test-build"
+  ]
+}

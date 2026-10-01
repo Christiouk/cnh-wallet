@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2200 720">
+
+
+<g transform="translate(120,130) scale(0.58)">
+  <path d="M 0.0,641.8 L 119.4,641.8 L 149.3,611.9 L 403.0,223.9 L 432.8,238.8 L 477.6,328.4 L 507.5,358.2 L 537.3,432.8 L 567.2,462.7 L 597.0,537.3 L 671.6,626.9 L 746.3,656.7 L 806.0,656.7 L 820.9,641.8 L 895.5,626.9 L 970.1,552.2 L 985.1,477.6 L 1000.0,462.7 L 1000.0,417.9 L 955.2,313.4 L 910.4,268.7 L 806.0,223.9 L 910.4,89.6 L 895.5,29.9 L 865.7,0.0 L 537.3,0.0 L 582.1,74.6 L 776.1,74.6 L 791.0,59.7 L 806.0,74.6 L 776.1,134.3 L 686.6,238.8 L 686.6,268.7 L 716.4,298.5 L 806.0,298.5 L 895.5,358.2 L 925.4,417.9 L 925.4,492.5 L 865.7,567.2 L 791.0,582.1 L 731.3,537.3 L 656.7,388.1 L 626.9,358.2 L 507.5,134.3 L 477.6,104.5 L 447.8,29.9 L 417.9,0.0 L 164.2,373.1 L 149.3,417.9 Z" fill="#FFFFFF"/>
+</g>
+<text x="860" y="315" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif"
+      font-size="126" font-weight="500" letter-spacing="18">A3 WALLET</text>
+<text x="868" y="410" fill="#E8ECE7" font-family="Arial, Helvetica, sans-serif"
+      font-size="34" font-weight="400" letter-spacing="12">YOUR ASSETS. YOUR CONTROL.</text>
+</svg>

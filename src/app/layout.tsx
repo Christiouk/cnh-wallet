@@ -1,12 +1,27 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-import PrivyProviderWrapper from '@/providers/PrivyProviderWrapper';
 import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
 
 export const metadata: Metadata = {
-  title: 'Morsands | Self-Custody Wallet',
-  description: 'Morsands — Your Keys. Your Assets. Your Future. Institutional-grade self-custody wallet.',
+  title: 'A3 Wallet',
+  description:
+    'A3 Wallet — a self-custody wallet. YOUR ASSETS. YOUR CONTROL.',
+  metadataBase: new URL('https://wallet.morsands.com'),
+  applicationName: 'A3 Wallet',
   manifest: '/manifest.json',
+  openGraph: {
+    title: 'A3 Wallet',
+    description: 'A self-custody wallet. YOUR ASSETS. YOUR CONTROL.',
+    siteName: 'A3 Wallet',
+    type: 'website',
+    images: [{ url: '/icons/icon-512x512.png', width: 512, height: 512, alt: 'A3 Wallet' }],
+  },
+  twitter: {
+    card: 'summary',
+    title: 'A3 Wallet',
+    description: 'A self-custody wallet. YOUR ASSETS. YOUR CONTROL.',
+    images: ['/icons/icon-512x512.png'],
+  },
   icons: {
     icon: '/favicon.ico',
     apple: '/icons/apple-touch-icon.png',
@@ -14,7 +29,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Morsands',
+    title: 'A3 Wallet',
   },
   formatDetection: {
     telephone: false,
@@ -25,11 +40,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0f1729',
+  themeColor: '#0B0D0F',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   viewportFit: 'cover',
 };
 
@@ -43,8 +56,11 @@ export default function RootLayout({
       <head>
         {/* iOS PWA meta tags */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Morsands" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+        <meta name="apple-mobile-web-app-title" content="A3 Wallet" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         {/* iOS splash screens */}
         <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />
@@ -52,7 +68,7 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
       </head>
       <body className="min-h-screen bg-surface">
-        <PrivyProviderWrapper>{children}</PrivyProviderWrapper>
+        {children}
         <ServiceWorkerRegistration />
       </body>
     </html>
