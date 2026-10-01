@@ -3,6 +3,8 @@ import { useMemo, useState } from 'react';
 import { TronWeb, utils } from 'tronweb';
 import WalletShell, { type WalletView } from '@/components/ui/WalletShell';
 import { EthereumPanel } from '@/components/Dashboard';
+import { BuyPanel, type BuyDriver } from '@/components/buy/Buy';
+import { SwapPanel, type SwapDriver } from '@/components/swap/Swap';
 import { EthereumSend } from '@/components/SendModal';
 import { LoginView } from '@/components/LoginScreen';
 import LoadingScreen from '@/components/LoadingScreen';
@@ -33,6 +35,15 @@ const prices = {
   USDC: { usd: 1, usd_24h_change: 0 },
   TRX: { usd: 0.32, usd_24h_change: 0 },
 };
+const gatedBuy: BuyDriver = async () => {
+  throw new Error('BUY_UNAVAILABLE');
+};
+const gatedSwap: SwapDriver = {
+  api: async <T,>() => ({ enabled: false }) as T,
+  sign: async () => {
+    throw new Error('Synthetic fixture cannot sign');
+  },
+};
 export default function Fixture() {
   const [network, setNetwork] = useState<A3Network>('ethereum');
   const [view, setView] = useState<WalletView>('wallet');
@@ -50,7 +61,8 @@ export default function Fixture() {
       },
       sign: async () => {
         await new Promise((r) => setTimeout(r, 1800));
-        if (scenario === 'rejected') throw new Error('Authorization cancelled');
+        if (scenario === 'rejected')
+          throw new Error('Authorization cancelled');
         return '0x' + '1'.repeat(128);
       },
       api: async <T,>(
@@ -116,7 +128,8 @@ export default function Fixture() {
               {
                 type: 'TriggerSmartContract',
                 parameter: {
-                  type_url: 'type.googleapis.com/protocol.TriggerSmartContract',
+                  type_url:
+                    'type.googleapis.com/protocol.TriggerSmartContract',
                   value: {
                     owner_address: tronHex(owner.address),
                     contract_address: tronHex(TRON_USDT.contract),
@@ -270,7 +283,9 @@ export default function Fixture() {
         <LoginView
           onEmail={() => setNotice('Email sign-in callback — fixture only')}
           onApple={() => setNotice('Apple sign-in callback — fixture only')}
-          onGoogle={() => setNotice('Google sign-in callback — fixture only')}
+          onGoogle={() =>
+            setNotice('Google sign-in callback — fixture only')
+          }
         />
       ) : scenario === 'auth-loading' ? (
         <LoadingScreen />
@@ -347,6 +362,25 @@ export default function Fixture() {
                   note="Latest 25 normal Ethereum transactions. Token transfers and internal transfers are not indexed. Contract activity may have no determinable asset or amount."
                 />
               }
+              renderBuy={(close) => (
+                <BuyPanel
+                  network="ethereum"
+                  address={evmAddress}
+                  driver={gatedBuy}
+                  onClose={close}
+                  onRefresh={() => {}}
+                />
+              )}
+              renderSwap={(open, close) => (
+                <SwapPanel
+                  isOpen={open}
+                  address={evmAddress}
+                  balances={tokens}
+                  driver={gatedSwap}
+                  onClose={close}
+                  onRefresh={() => {}}
+                />
+              )}
               renderSend={(open, close) => (
                 <EthereumSend
                   isOpen={open}
@@ -365,6 +399,15 @@ export default function Fixture() {
               status={status}
               owner={status === 'ready' ? owner : undefined}
               driver={driver}
+              renderBuy={(close) => (
+                <BuyPanel
+                  network="tron"
+                  address={owner.address}
+                  driver={gatedBuy}
+                  onClose={close}
+                  onRefresh={() => {}}
+                />
+              )}
               config={{
                 creation: scenario !== 'gated',
                 send: scenario !== 'gated',

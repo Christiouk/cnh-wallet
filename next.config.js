@@ -1,9 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // RC previews never initialize the production Privy application.
+  env: { NEXT_PUBLIC_A3_RC_PREVIEW_LOCKED: process.env.VERCEL_ENV === 'preview' ? 'true' : 'false' },
   poweredByHeader: false,
   async headers() {
     return [{ source: '/:path*', headers: [
+      ...(process.env.VERCEL_ENV === 'preview' ? [{ key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' }] : []),
       { key: 'Content-Security-Policy', value: "base-uri 'self'; object-src 'none'; frame-ancestors 'none'" },
       // Stage resource restrictions without breaking untested OAuth/wallet recovery flows.
       // Promote only after authenticated staging verification; see docs/A3-04-security.md.

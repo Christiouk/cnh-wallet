@@ -1,6 +1,7 @@
 'use client';
 
 import { PrivyProvider } from '@privy-io/react-auth';
+import { LoginView } from '@/components/LoginScreen';
 
 const ethereum = {
   id: 1,
@@ -18,6 +19,16 @@ export default function PrivyProviderWrapper({
   children: React.ReactNode;
 }) {
   const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
+
+  if (process.env.NEXT_PUBLIC_A3_RC_PREVIEW_LOCKED === 'true')
+    return (
+      <LoginView
+        preview
+        onEmail={() => {}}
+        onApple={() => {}}
+        onGoogle={() => {}}
+      />
+    );
 
   if (!appId) {
     return (

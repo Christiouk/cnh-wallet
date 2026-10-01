@@ -20,10 +20,12 @@ export function LoginView({
   onEmail,
   onApple,
   onGoogle,
+  preview = false,
 }: {
   onEmail(): void;
   onApple(): void;
   onGoogle(): void;
+  preview?: boolean;
 }) {
   return (
     <main className="login-page">
@@ -61,18 +63,34 @@ export function LoginView({
             Your wallet. <br />
             Right here.
           </h2>
-          <p className="muted">Sign in to access your existing account.</p>
+          <p className="muted">
+            {preview
+              ? 'Release candidate preview. Sign-in is paused until existing-account continuity is verified. No wallet or financial operations are enabled here.'
+              : 'Sign in to access your existing account.'}
+          </p>
           <div className="login-methods">
-            <button className="btn-primary" onClick={onApple}>
+            <button
+              className="btn-primary"
+              onClick={onApple}
+              disabled={preview}
+            >
               Continue with Apple
             </button>
-            <button className="btn-secondary" onClick={onGoogle}>
+            <button
+              className="btn-secondary"
+              onClick={onGoogle}
+              disabled={preview}
+            >
               Continue with Google
             </button>
             <div className="login-divider">
               <span>or use your email</span>
             </div>
-            <button className="btn-secondary" onClick={onEmail}>
+            <button
+              className="btn-secondary"
+              onClick={onEmail}
+              disabled={preview}
+            >
               Continue with Email <span aria-hidden>↗</span>
             </button>
           </div>

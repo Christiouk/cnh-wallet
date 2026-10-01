@@ -17,7 +17,12 @@
     "src/components/**/*.tsx",
     "src/app/api/tron/route.ts",
     "src/app/api/buy/route.ts",
-    "src/app/api/swap/route.ts"
+    "src/app/api/swap/route.ts",
+    "src/providers/PrivyProviderWrapper.tsx"
   ],
-  "exclude": ["node_modules", ".next", ".test-build"]
+  "exclude": [
+    "node_modules",
+    ".next",
+    ".test-build"
+  ]
 }
