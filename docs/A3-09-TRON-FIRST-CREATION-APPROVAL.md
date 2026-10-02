@@ -1,3 +1,5 @@
+> Completed by the owner through A3 UI on 2 October 2026. Same-user/unchanged-EVM/single-Tron continuity verified read-only. Do not repeat creation. See A3-09-TRON-CONTINUITY-RESULT.md for current evidence. The procedure below is retained as the historical approval record.
+
 # TRON FIRST-CREATION TEST — OWNER APPROVED; SETUP PENDING
 
 On 2 October 2026, the owner explicitly approved one controlled first Tron wallet creation for the same verified existing user. Approval is recorded; creation has NOT been attempted or executed. This approval does not cover signing, funding or a financial transaction.

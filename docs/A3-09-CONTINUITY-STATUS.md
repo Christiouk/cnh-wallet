@@ -1,31 +1,15 @@
-# A3-09 — Ethereum continuity and release status
+# A3-09 current continuity status
 
-2 October 2026. **ACCESS RESTORED — CONTINUITY PASSED. PASSED — EXISTING EVM CONTINUITY VERIFIED.**
+**ETHEREUM CONTINUITY — PASSED. ACCESS RESTORED — CONTINUITY PASSED.**
 
-The owner reports successful three-way equality using the same existing controlled account: untouched Production Morsands address = original Privy embedded EVM address = A3 RC2 Preview address. Existing DID and historical EVM continuity are recorded as owner-verified, not as a new automated signing test. Privy recovery itself is no longer a Release 1 blocker.
+**TRON CREATION CONTINUITY — PASSED for verified same-user identity, unchanged historical EVM record/address and exactly one new Tron wallet.**
 
-## Read-only side-effect verification
+The owner explicitly created Tron through A3 UI. Read-only Privy checks confirmed the same 14 users, all 13 original EVM wallet records and one new Tron wallet. The previously verified existing user has exactly one EVM and one Tron association, matching both exact owner-supplied addresses. No duplicate/new user, extra EVM or duplicate Tron record was observed. No agent creation, signing, transfer or Production change occurred.
 
-| Check | Result and evidence |
-|---|---|
-| User count | 14 before and after |
-| Existing users | All 14 displayed user IDs compared in memory with the pre-login dashboard inventory; all existed before login |
-| Wallet count | 13 before and after |
-| Existing wallet records | All 13 displayed wallet IDs compared in memory with the pre-login dashboard inventory; all existed before login |
-| EVM / Tron | 13 EVM, zero Tron; no unexpected duplicate or automatic Tron record observed |
-| Controlled account | User selected by the owner in Privy exists in the original population; one Ethereum wallet section and no Tron section observed |
-| DID/address equality | Owner-confirmed three-way continuity proof; full private values not included in repository documentation |
-| Migration | No new/replaced wallet record observed; deployed source retains disableAutomaticMigration=true. No per-wallet before/after migration-mode audit trail was available in the inspected UI, so counts alone are not described as conclusive migration-history proof |
+Per-wallet migration-history auditing is not independently available in the inspected dashboard. Stable original EVM record/address/user association and disabled automatic migration are established; they are not represented as a full audit-log proof.
 
-No unexpected duplication was found. No account/wallet was created, deleted, linked, reassigned or migrated by this validation. No signatures or financial transactions were performed. RC2's available Chrome tab was signed out when inspected after the owner's report; follow-on authenticated Portfolio/Receive/Activity checks await an available signed-in session. The owner has been asked to leave that tab signed in without sharing credentials.
+Independent TronGrid diagnostics verify 0 TRX, 0 canonical USDT, inactive account and no indexed USDT transfers. The deployed Preview still has an empty TRONGRID_API_KEY and correctly shows unavailable; the owner has been asked to configure only that branch's Preview key. Source/tests distinguish zero from unavailable. Authenticated Preview reads, connected-wallet recheck, QR decoding and exact live clipboard comparison await a signed-in owner session. Source/UI tests and the owner's report are recorded separately.
 
-## Active release gates
+Remaining gates: Ethereum real signer; Tron read provider and approved funding/resource/signer test; physical iPhone/iPad/Android; customer native integration and signed archives; legal/deletion/security sign-off. Buy/Swap are hidden/post-launch and Admin is non-blocking. Privy recovery and first Tron creation themselves are no longer blockers.
 
-1. Ethereum signer/device validation. Synthetic full-path tests pass; real embedded signer remains unproven.
-2. Controlled same-user Tron creation and continuity: owner approved one creation on 2 October 2026; secure Preview setup and signed-in verified session are pending. No creation attempted.
-3. Tron signer, resource/fee, expiry and receipt validation.
-4. Physical iPhone/iPad and Android sign-off.
-5. Native wallet integration, signed package validation and store-readiness evidence.
-6. Legal, deletion processing and security sign-off, including dependency findings and live CSP verification.
-
-Buy/Swap remain hidden and post-launch. Admin is separate and is not a customer Release 1 blocker. **Production remains NO-GO for the actual remaining gates, not Privy recovery.** No Production changes are authorized or performed.
+See A3-09-TRON-CONTINUITY-RESULT.md and A3-09-TRON-SEND-VALIDATION.md in repository documentation (TRON-CONTINUITY-RESULT.md and release-pack/TRON-SEND-VALIDATION.md in the local release pack).

@@ -1,33 +1,15 @@
-# A3-09 continuation report
+# A3-09 — post-Tron validation report
 
-**ETHEREUM CONTINUITY — PASSED. ACCESS RESTORED — CONTINUITY PASSED.**
+**Ethereum continuity PASSED. Tron creation continuity PASSED for verified identity/address/wallet-record checks.**
 
-The owner's three-way Production/Privy/RC2 proof is recorded. Post-login read-only dashboard checks found the same 14 user IDs and same 13 EVM wallet-record IDs as before, with zero Tron wallets. No duplicate/new account or wallet observed. The migration limitation is explicit: stable records and disabled migration configuration are observed, but a per-wallet migration-mode history was not independently available.
+The same 14 users and all 13 historical EVM records remain; exactly one new Tron record is linked to the same controlled existing user. Both exact wallet addresses match the owner's references. No duplicate/new user or extra EVM wallet observed. Migration-history audit limitation remains explicit: record continuity is verified, a per-wallet audit trail is unavailable.
 
-## Completed work
+Independent TronGrid diagnostics verify inactive address, 0 TRX, 0 canonical USDT and no indexed USDT transfers. The deployed Preview read configuration remains blocked by its empty branch-specific TRONGRID_API_KEY. The owner was asked to configure it directly in Vercel. No keyless fallback or invented balance was introduced. Available RC2 browser session remains signed out, so actual rendered QR decoding, Copy and refreshed connected-wallet selection need owner login. No creation repeated, no signing/funding/broadcast, no Production changes.
 
-- Current continuity record and Release 1 matrix updated; Privy recovery removed from blockers. Historical A3-08 evidence retained.
-- Ethereum Send boundary reviewed and 97 deterministic wallet tests rerun successfully; final web lint/typecheck/build pass. No signature/transaction performed.
-- Controlled ETH signer procedure and same-user first Tron creation plan prepared. Owner approved one Tron creation on 2 October 2026; setup remains pending and no creation was attempted. ETH signer transaction remains unapproved and unexecuted.
-- Physical-device test package and 64-row results sheet prepared, all physical rows honestly NOT RUN.
-- Existing native iOS/Android project configurations updated; original package IDs retained, automatic EVM creation disabled, unused permissions restricted, portrait lock removed, unverified encryption exemption removed. The separate legacy vault is isolated from the validation entry.
-- Generated iOS/Android project files and both validation JavaScript bundles; focused native typecheck and four tests pass. No signed customer binary or native wallet parity claim.
-- Apple/Google submission drafts, privacy worksheet, legal/deletion and security review prepared.
-- Stale deletion text requiring Privy access restoration corrected locally; actual deletion-processing limitation preserved. No email, account deletion or Production publication.
+TRON SEND TEST — READY FOR OWNER APPROVAL: proposed 0.01 USDT to an existing activated owner-controlled destination, with a proposed 20 TRX maximum network budget. Exact resource minimum requires destination, funding and live simulation; no sponsorship assumed. Execution remains unapproved. Detailed funding, activation, fee formula, signer/receipt and stop conditions are in release-pack/TRON-SEND-VALIDATION.md. Ethereum real signer remains a separate approval; synthetic complete-path tests are not a live signature.
 
-## Remaining gates
+Web lint/typecheck and all 97 tests pass. Native targeted dependency patches applied; focused typecheck and four tests pass; iOS/Android validation bundles refreshed. Final native audit: 0 critical, 82 high, 42 moderate, 7 low. Combined Expo web export failed on the separate router CSS cache; separate mobile exports passed. Native output is still a validation shell, not customer wallet integration or a signed binary.
 
-1. Ethereum real embedded signer validation; proposal in release-pack/ETHEREUM-VALIDATION.md awaits explicit owner approval and owner final signing action.
-2. TRON FIRST-CREATION TEST — OWNER APPROVED; SETUP PENDING. Same user; existing EVM wallet untouched; exactly one Privy-generated Tron address, unknown until generation; no transaction/funds. Preview server authentication prerequisites remain intentionally unconfigured.
-3. Tron signer/resource validation, separately approved after creation.
-4. Physical iPhone/iPad/Android sign-off and an available signed-in RC2 session for follow-on live Portfolio/Receive/Activity checks. Current available RC2 tab was signed out.
-5. Native customer-wallet integration, verified native Privy callback/client setup, actual signed package/toolchain validation. Full Xcode and Java runtime are absent; no signed IPA/AAB. Native security still has high-severity dependency findings after critical fixes.
-6. Legal/deletion/security owner sign-off. Email request foundation is not an end-to-end deletion process; no regulated-industry exception assumed. Activity is unavailable in this Preview without Etherscan configuration; complete ERC-20 history is not established.
+Physical-device, Apple/Google, legal/deletion and security packs updated. No physical device sign-off, deletion completion, signed native archive or store submission is claimed. Full Xcode and Java remain unavailable. Buy/Swap remain hidden/post-launch; Admin is non-blocking. Privy recovery and first Tron creation are no longer Release 1 blockers. Actual signer/device/native/legal/security gates still prevent release.
 
-Buy/Swap are hidden/post-launch. Admin remains separate and does not block customer Release 1. Protected RC2 and Production/DNS/aliases remain unchanged. No new user/wallet, migration, financial transaction, vault, funding provider, store submission or Production change occurred.
-
-## Deliverables
-
-Start with A3-RELEASE-1-MATRIX.md and release-pack/. A3-09-release-pack.zip collects the redacted plans/reports/worksheets. Native JavaScript outputs are in native-ios-bundle/ and native-android-bundle/; generated project sources remain in the native repo. The packet is ready for review, not a claim of launch readiness.
-
-**A3-09 remains open for these specific approval/device/integration gates. Privy recovery and EVM continuity are PASSED.**
+Evidence: TRON-CONTINUITY-RESULT.md, post-tron-inventory.json, tron-public-read-check.json, tron-public-usdt-read.json and release-pack/NATIVE-FOLLOWUP.md. Shared documentation contains no full controlled-account identifiers or secrets.
