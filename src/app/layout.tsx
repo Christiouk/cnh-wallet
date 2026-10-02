@@ -6,7 +6,8 @@ export const metadata: Metadata = {
   title: 'A3 Wallet',
   description:
     'A3 Wallet — a self-custody wallet. YOUR ASSETS. YOUR CONTROL.',
-  metadataBase: new URL('https://wallet.morsands.com'),
+  metadataBase: new URL(process.env.VERCEL_ENV === 'preview' ? `https://${process.env.VERCEL_URL || 'preview.invalid'}` : 'https://wallet.morsands.com'),
+  ...(process.env.VERCEL_ENV === 'preview' ? { robots: { index: false, follow: false } } : {}),
   applicationName: 'A3 Wallet',
   manifest: '/manifest.json',
   openGraph: {

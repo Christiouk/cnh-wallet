@@ -1899,3 +1899,5 @@ img {
 .swap-sheet p, .swap-sheet dd, .swap-sheet strong { overflow-wrap: anywhere; }
 .swap-sheet .explorer-link { display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px; }
 .swap-direction { text-align: center; font-size: 24px; }
+
+.account-security summary { min-height: 44px; cursor: pointer; padding: 12px 0; }

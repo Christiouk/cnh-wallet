@@ -1,5 +1,4 @@
 'use client';
-import Buy from '../buy/Buy';
 import AssetIcon from '../ui/AssetIcon';
 import { useCallback, useEffect, useState } from 'react';
 import { useTronWallet, type TronDriver } from '@/hooks/useTronWallet';
@@ -61,16 +60,6 @@ export default function TronWorkspace({
       driver={driver}
       config={config}
       prices={prices}
-      renderBuy={(close, refresh) =>
-        selection.status === 'ready' ? (
-          <Buy
-            network="tron"
-            address={selection.wallet.address}
-            onClose={close}
-            onRefresh={refresh}
-          />
-        ) : null
-      }
     />
   );
 }
@@ -186,7 +175,7 @@ export function TronPanel({
           </span>
           <p className="eyebrow">A NEW NETWORK. YOUR SAME ACCOUNT.</p>
           <h2>Add Tron to A3.</h2>
-          <p>To buy USDT on Tron, enable Tron first.</p>
+          <p>Receive and send USDT TRC-20 with a compatible Tron address.</p>
           <p>
             Add a Tron address to your existing A3 account for USDT TRC-20.
           </p>
