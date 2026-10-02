@@ -11,7 +11,7 @@
 | Receive / QR / Copy | Automated address/render/copy/error tests pass; owner address continuity passed | Actual clipboard/QR scan and physical-device evidence |
 | Ethereum Activity | Unavailable by current Preview configuration | Etherscan key intentionally blank; unavailable-state tests pass. Do not present missing data as empty history |
 | Ethereum signer | OPEN — critical | Synthetic ETH and ERC-20 explicit-signer, single-call, review/error/receipt tests pass; owner-approved real signer test required |
-| Tron first creation | READY FOR OWNER APPROVAL (test plan) | Same existing user; Preview prerequisites then one controlled creation. No approval granted yet |
+| Tron first creation | OWNER APPROVED — SETUP PENDING | One creation for the same existing user approved on 2 October 2026. Preview server authentication, protected redeployment/origin and signed-in session still needed; no creation attempted |
 | Tron signer/resources | OPEN — critical | Resource/provider setup, fee cap, expiry, identity, signature and receipt proof |
 | Physical iPhone/iPad | OPEN — critical | Test package prepared; actual device sign-off required |
 | Android device | OPEN | Native/PWA lifecycle, copy/QR, auth and signer checks |

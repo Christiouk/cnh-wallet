@@ -22,7 +22,7 @@ No unexpected duplication was found. No account/wallet was created, deleted, lin
 ## Active release gates
 
 1. Ethereum signer/device validation. Synthetic full-path tests pass; real embedded signer remains unproven.
-2. Controlled same-user Tron creation and continuity, explicit owner approval required.
+2. Controlled same-user Tron creation and continuity: owner approved one creation on 2 October 2026; secure Preview setup and signed-in verified session are pending. No creation attempted.
 3. Tron signer, resource/fee, expiry and receipt validation.
 4. Physical iPhone/iPad and Android sign-off.
 5. Native wallet integration, signed package validation and store-readiness evidence.

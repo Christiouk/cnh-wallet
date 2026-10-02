@@ -8,7 +8,7 @@ The owner's three-way Production/Privy/RC2 proof is recorded. Post-login read-on
 
 - Current continuity record and Release 1 matrix updated; Privy recovery removed from blockers. Historical A3-08 evidence retained.
 - Ethereum Send boundary reviewed and 97 deterministic wallet tests rerun successfully; final web lint/typecheck/build pass. No signature/transaction performed.
-- Controlled ETH signer procedure and same-user first Tron creation plan prepared; neither approved/executed.
+- Controlled ETH signer procedure and same-user first Tron creation plan prepared. Owner approved one Tron creation on 2 October 2026; setup remains pending and no creation was attempted. ETH signer transaction remains unapproved and unexecuted.
 - Physical-device test package and 64-row results sheet prepared, all physical rows honestly NOT RUN.
 - Existing native iOS/Android project configurations updated; original package IDs retained, automatic EVM creation disabled, unused permissions restricted, portrait lock removed, unverified encryption exemption removed. The separate legacy vault is isolated from the validation entry.
 - Generated iOS/Android project files and both validation JavaScript bundles; focused native typecheck and four tests pass. No signed customer binary or native wallet parity claim.
@@ -17,8 +17,8 @@ The owner's three-way Production/Privy/RC2 proof is recorded. Post-login read-on
 
 ## Remaining gates
 
-1. Ethereum real embedded signer validation; proposal in outputs/A3-09/release-pack/ETHEREUM-VALIDATION.md awaits explicit owner approval and owner final signing action.
-2. TRON FIRST-CREATION TEST — READY FOR OWNER APPROVAL. Same user; existing EVM wallet untouched; exactly one Privy-generated Tron address, unknown until generation; no transaction/funds. Preview server authentication prerequisites remain intentionally unconfigured.
+1. Ethereum real embedded signer validation; proposal in release-pack/ETHEREUM-VALIDATION.md awaits explicit owner approval and owner final signing action.
+2. TRON FIRST-CREATION TEST — OWNER APPROVED; SETUP PENDING. Same user; existing EVM wallet untouched; exactly one Privy-generated Tron address, unknown until generation; no transaction/funds. Preview server authentication prerequisites remain intentionally unconfigured.
 3. Tron signer/resource validation, separately approved after creation.
 4. Physical iPhone/iPad/Android sign-off and an available signed-in RC2 session for follow-on live Portfolio/Receive/Activity checks. Current available RC2 tab was signed out.
 5. Native customer-wallet integration, verified native Privy callback/client setup, actual signed package/toolchain validation. Full Xcode and Java runtime are absent; no signed IPA/AAB. Native security still has high-severity dependency findings after critical fixes.
@@ -28,6 +28,6 @@ Buy/Swap are hidden/post-launch. Admin remains separate and does not block custo
 
 ## Deliverables
 
-Start with A3-RELEASE-1-MATRIX.md and outputs/A3-09/release-pack/. A3-09-release-pack.zip collects the redacted plans/reports/worksheets. Native JavaScript outputs are in native-ios-bundle/ and native-android-bundle/; generated project sources remain in the native repo. The packet is ready for review, not a claim of launch readiness.
+Start with A3-RELEASE-1-MATRIX.md and release-pack/. A3-09-release-pack.zip collects the redacted plans/reports/worksheets. Native JavaScript outputs are in native-ios-bundle/ and native-android-bundle/; generated project sources remain in the native repo. The packet is ready for review, not a claim of launch readiness.
 
 **A3-09 remains open for these specific approval/device/integration gates. Privy recovery and EVM continuity are PASSED.**
