@@ -1,7 +1,7 @@
 'use client';
 
 import { PrivyProvider } from '@privy-io/react-auth';
-import { LoginView } from '@/components/LoginScreen';
+import { LoginView } from '@/components/LoginView';
 
 const ethereum = {
   id: 1,

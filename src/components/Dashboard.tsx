@@ -7,15 +7,14 @@ import { usePortfolioBalances } from '@/hooks/usePortfolioBalances';
 import { walletStateMessage } from '@/lib/wallet/selection';
 import { usePrices, type PricesMap } from '@/hooks/usePrices';
 import type { TokenBalance } from '@/lib/tokens';
-import Buy from './buy/Buy';
-import Swap from './swap/Swap';
+import dynamic from 'next/dynamic';
 import BalanceCard from './BalanceCard';
 import ActionButtons from './ActionButtons';
 import TokenList from './TokenList';
 import TransactionHistory from './TransactionHistory';
 import ReceiveModal from './ReceiveModal';
 import SendModal from './SendModal';
-import TronWorkspace from './tron/TronWorkspace';
+const TronWorkspace = dynamic(() => import('./tron/TronWorkspace'));
 import WalletShell, { type WalletView } from './ui/WalletShell';
 import type { A3Network } from '@/lib/wallet/networks';
 export default function Dashboard({
@@ -53,7 +52,6 @@ export default function Dashboard({
 }
 function EthereumDashboard({ view }: { view: WalletView }) {
   const { user, evm } = useEmbeddedWallets();
-  const [buyRevision, setBuyRevision] = useState(0);
   const walletAddress = evm.status === 'ready' ? evm.wallet.address : '';
   const { state: portfolio, refresh } = usePortfolioBalances(
     user?.id,
@@ -81,7 +79,7 @@ function EthereumDashboard({ view }: { view: WalletView }) {
       activity={
         walletAddress ? (
           <TransactionHistory
-            key={`${user?.id}:${walletAddress}:${buyRevision}`}
+            key={`${user?.id}:${walletAddress}`}
             walletAddress={walletAddress}
             limit={view === 'wallet' ? 5 : undefined}
           />
@@ -91,28 +89,6 @@ function EthereumDashboard({ view }: { view: WalletView }) {
           </p>
         )
       }
-      renderSwap={(open, close) => (
-        <Swap
-          isOpen={open}
-          balances={tokens}
-          onClose={close}
-          onRefresh={() => {
-            refresh();
-            setBuyRevision((n) => n + 1);
-          }}
-        />
-      )}
-      renderBuy={(close) => (
-        <Buy
-          network="ethereum"
-          address={walletAddress}
-          onClose={close}
-          onRefresh={() => {
-            refresh();
-            setBuyRevision((n) => n + 1);
-          }}
-        />
-      )}
       renderSend={(open, close) => (
         <SendModal isOpen={open} onClose={close} balances={tokens} />
       )}

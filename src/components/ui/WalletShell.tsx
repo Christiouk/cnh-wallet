@@ -79,27 +79,37 @@ export function AccountPanel({
         }
       >
         <a
-          href="https://www.morsands.com/contact.html"
+          href="https://www.morsands.com/support"
           target="_blank"
           rel="noopener noreferrer"
         >
           Help & support <span aria-hidden>↗</span>
         </a>
         <a
-          href="https://www.morsands.com/privacy.html"
+          href="https://www.morsands.com/privacy"
           target="_blank"
           rel="noopener noreferrer"
         >
           Privacy policy <span aria-hidden>↗</span>
         </a>
         <a
-          href="https://www.morsands.com/delete-account.html"
+          href="https://www.morsands.com/account-deletion"
           target="_blank"
           rel="noopener noreferrer"
         >
           Account & data deletion <span aria-hidden>↗</span>
         </a>
       </nav>
+      <section className="account-security" aria-label="Account deletion">
+        <details>
+          <summary className="settings-section-heading">Request account deletion</summary>
+          <p>Deleting your account can affect access to your embedded wallets. No account, wallet or funds will be changed by opening this request.</p>
+          <p>Email privacy@morsands.com from your account email, if available. We must verify ownership and explain wallet-access consequences before you confirm. Never include private keys, recovery phrases or verification codes.</p>
+          <p>Final deletion is not automated and awaits a verified Privy administration and recovery procedure. A completion time is not yet confirmed.</p>
+          <a className="btn-secondary" href="mailto:privacy@morsands.com?subject=A3%20account%20deletion%20request">Prepare deletion request email</a>
+          <p className="small">Opening an email draft does not submit a request. Send it yourself, or email privacy@morsands.com directly if no email app opens.</p>
+        </details>
+      </section>
       <p role="status" className="small">
         {notice}
       </p>

@@ -1,3 +1,8 @@
 {
-  "git": { "deploymentEnabled": { "release/a3-rc1": false } }
+  "git": {
+    "deploymentEnabled": {
+      "release/a3-rc1": false,
+      "chore/a3-08-release-readiness": false
+    }
+  }
 }
