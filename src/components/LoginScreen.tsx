@@ -10,7 +10,7 @@ export default function LoginScreen() {
 
   // RC2 uses the modal's existing-user-only mode for every login method.
   // Never let a typo or a different OAuth identity sign up during continuity proof.
-  if (process.env.NEXT_PUBLIC_A3_RC_CONTINUITY === 'true') {
+  if (process.env.NEXT_PUBLIC_A3_RC_CONTINUITY === 'true' || process.env.NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY === 'true') {
     return (
       <LoginView
         onEmail={() => login({ loginMethods: ['email'], disableSignup: true })}

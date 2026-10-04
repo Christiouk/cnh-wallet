@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { POST } from '../src/app/api/send/route';
+import { GET, POST } from '../src/app/api/send/route';
 const sender = '0x1111111111111111111111111111111111111111';
 const recipient = '0x2222222222222222222222222222222222222222';
 const request = (input: object) =>
@@ -12,6 +12,8 @@ const request = (input: object) =>
 test('preflight requires mainnet, sufficient ETH and asset balances, and successful simulation', async () => {
   const originalFetch = global.fetch;
   const originalRpc = process.env.ETHEREUM_RPC_URL;
+  const originalGate = process.env.A3_ETHEREUM_SEND_ENABLED;
+  process.env.A3_ETHEREUM_SEND_ENABLED = 'true';
   process.env.ETHEREUM_RPC_URL = 'https://rpc.invalid';
   let chain = '0x1',
     eth = '0xde0b6b3a7640000',
@@ -88,7 +90,33 @@ test('preflight requires mainnet, sufficient ETH and asset balances, and success
     assert.doesNotMatch(await failed.text(), /secret provider/);
   } finally {
     global.fetch = originalFetch;
+    if (originalGate === undefined) delete process.env.A3_ETHEREUM_SEND_ENABLED;
+    else process.env.A3_ETHEREUM_SEND_ENABLED = originalGate;
     if (originalRpc === undefined) delete process.env.ETHEREUM_RPC_URL;
     else process.env.ETHEREUM_RPC_URL = originalRpc;
+  }
+});
+
+test('Send release gate rejects preparation before provider calls; missing and malformed flags fail closed', async () => {
+  const previous = process.env.A3_ETHEREUM_SEND_ENABLED;
+  const previousFetch = global.fetch;
+  let calls = 0;
+  global.fetch = async () => { calls++; throw new Error('Must not contact provider'); };
+  try {
+    for (const flag of [undefined, '', 'false', 'TRUE', '1']) {
+      if (flag === undefined) delete process.env.A3_ETHEREUM_SEND_ENABLED;
+      else process.env.A3_ETHEREUM_SEND_ENABLED = flag;
+      const config = await GET();
+      assert.equal(config.headers.get('cache-control'), 'no-store');
+      assert.deepEqual(await config.json(), { send: false });
+      const response = await POST(request({ action: 'preview', sender, recipient, symbol: 'ETH', amount: '0.000001' }));
+      assert.equal(response.status, 503);
+      assert.equal((await response.json()).error.code, 'SEND_DISABLED');
+    }
+    assert.equal(calls, 0);
+  } finally {
+    global.fetch = previousFetch;
+    if (previous === undefined) delete process.env.A3_ETHEREUM_SEND_ENABLED;
+    else process.env.A3_ETHEREUM_SEND_ENABLED = previous;
   }
 });

@@ -31,6 +31,8 @@ test('RC2 unlock requires Preview, exact branch, explicit opt-in and original Ap
   const production = config({ VERCEL_ENV: 'production' });
   assert.equal(production.env.NEXT_PUBLIC_A3_RC_CONTINUITY, 'false');
   assert.equal(production.env.NEXT_PUBLIC_A3_RC_PREVIEW_LOCKED, 'false');
+  assert.equal(config({ VERCEL_ENV: 'production', A3_CONTROLLED_RELEASE: 'true' }).env.NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY, 'true');
+  assert.equal(config({ VERCEL_ENV: 'production', A3_CONTROLLED_RELEASE: 'false' }).env.NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY, 'false');
 });
 
 test('all RC2 login buttons disable signup and never use the unrestricted OAuth flow', () => {
@@ -48,13 +50,22 @@ test('all RC2 login buttons disable signup and never use the unrestricted OAuth 
   const Login = require('../.test-build/src/components/LoginScreen').default;
   Module._load = load;
   const old = process.env.NEXT_PUBLIC_A3_RC_CONTINUITY;
+  const oldProduction = process.env.NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY;
   process.env.NEXT_PUBLIC_A3_RC_CONTINUITY = 'true';
   try {
     const view = Login();
     view.props.onEmail(); view.props.onApple(); view.props.onGoogle();
     assert.deepEqual(calls, ['email','apple','google'].map(method => ({ loginMethods: [method], disableSignup: true })));
+    calls.length = 0;
+    process.env.NEXT_PUBLIC_A3_RC_CONTINUITY = 'false';
+    process.env.NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY = 'true';
+    const productionView = Login();
+    productionView.props.onEmail(); productionView.props.onApple(); productionView.props.onGoogle();
+    assert.deepEqual(calls, ['email','apple','google'].map(method => ({ loginMethods: [method], disableSignup: true })));
   } finally {
     if (old === undefined) delete process.env.NEXT_PUBLIC_A3_RC_CONTINUITY;
     else process.env.NEXT_PUBLIC_A3_RC_CONTINUITY = old;
+    if (oldProduction === undefined) delete process.env.NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY;
+    else process.env.NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY = oldProduction;
   }
 });

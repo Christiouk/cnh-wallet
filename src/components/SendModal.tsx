@@ -39,6 +39,26 @@ export default function SendModal({
   const { evm, user } = useEmbeddedWallets();
   const { sendTransaction } = useSendTransaction();
   const sender = evm.status === 'ready' ? evm.wallet.address : '';
+  const [enabled, setEnabled] = useState(false);
+  useEffect(() => {
+    setEnabled(false);
+    if (!isOpen) return;
+    const controller = new AbortController();
+    fetch('/api/send', { cache: 'no-store', signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const config = await response.json();
+        if (!controller.signal.aborted) setEnabled(config.send === true);
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, [isOpen, user?.id, sender]);
+  if (!enabled)
+    return (
+      <Modal isOpen={isOpen} onClose={onClose} title="Send">
+        <p role="status">Ethereum sending awaits final validation.</p>
+      </Modal>
+    );
   return (
     <EthereumSend
       isOpen={isOpen}

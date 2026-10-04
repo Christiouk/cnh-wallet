@@ -15,6 +15,7 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_A3_RC_PREVIEW_LOCKED: preview && !continuityPreview ? 'true' : 'false',
     NEXT_PUBLIC_A3_RC_CONTINUITY: continuityPreview ? 'true' : 'false',
+    NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY: process.env.VERCEL_ENV === 'production' && process.env.A3_CONTROLLED_RELEASE === 'true' ? 'true' : 'false',
   },
   poweredByHeader: false,
   async headers() {

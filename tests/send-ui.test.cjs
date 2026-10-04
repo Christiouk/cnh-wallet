@@ -58,7 +58,7 @@ test('Send UI moves review → signature → submitted → confirming → receip
   };
   global.clearTimeout = () => {};
   global.fetch = async (_url, init) =>
-    JSON.parse(init.body).action === 'preview'
+    !init?.body ? Response.json({ send: true }) : JSON.parse(init.body).action === 'preview'
       ? Response.json({ estimatedNetworkCost: '1000', chainId: 1 })
       : new Promise((resolve) => {
           resolveReceipt = resolve;
@@ -123,6 +123,7 @@ test('touch asset choices preserve the selected token and exact amount passed to
     previousSigns = signCalls.length;
   let preview, root;
   global.fetch = async (_url, init) => {
+    if (!init?.body) return Response.json({ send: true });
     preview = JSON.parse(init.body);
     return Response.json({ estimatedNetworkCost: '1000', chainId: 1 });
   };
@@ -170,4 +171,22 @@ test('touch asset choices preserve the selected token and exact amount passed to
     if (root) await act(async () => root.unmount());
     global.fetch = previousFetch;
   }
+});
+
+test('closed or unavailable release gate never renders a signing form or requests a signature', async () => {
+  const previousFetch = global.fetch, previousSigns = signCalls.length;
+  try {
+    for (const mode of ['closed', 'failed', 'malformed']) {
+      global.fetch = async () => {
+        if (mode === 'failed') throw new Error('Unavailable');
+        return Response.json({ send: mode === 'closed' ? false : 'true' });
+      };
+      let root;
+      await act(async () => { root = create(React.createElement(Send, { isOpen: true, onClose() {} })); });
+      assert.match(JSON.stringify(root.toJSON()), /awaits final validation/);
+      assert.equal(root.root.findAllByType('input').length, 0);
+      assert.equal(signCalls.length, previousSigns);
+      await act(async () => root.unmount());
+    }
+  } finally { global.fetch = previousFetch; }
 });

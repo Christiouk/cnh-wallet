@@ -8,6 +8,13 @@ import {
 } from '../../../lib/wallet/send';
 import { CURATED_TOKENS } from '../../../lib/tokens';
 export const dynamic = 'force-dynamic';
+// Server-only, opt-in release gate. Never infer readiness from a browser flag.
+export async function GET() {
+  return NextResponse.json(
+    { send: process.env.A3_ETHEREUM_SEND_ENABLED === 'true' },
+    { headers: { 'Cache-Control': 'no-store' } },
+  );
+}
 export async function POST(request: Request) {
   try {
     guard(request, 'send-read', 120);
@@ -26,6 +33,8 @@ export async function POST(request: Request) {
         { headers: { 'Cache-Control': 'no-store' } },
       );
     }
+    if (process.env.A3_ETHEREUM_SEND_ENABLED !== 'true')
+      throw new ApiError(503, 'SEND_DISABLED', 'Ethereum sending awaits final validation');
     keys(input, ['action', 'sender', 'recipient', 'symbol', 'amount']);
     if (
       input.action !== 'preview' ||
