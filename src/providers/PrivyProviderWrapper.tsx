@@ -7,7 +7,7 @@ const ethereum = {
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.llamarpc.com'] } },
+  rpcUrls: { default: { http: ['https://ethereum-rpc.publicnode.com'] } },
   blockExplorers: {
     default: { name: 'Etherscan', url: 'https://etherscan.io' },
   },

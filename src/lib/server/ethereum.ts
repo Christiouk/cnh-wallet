@@ -7,6 +7,8 @@ export async function rpc(
   method:
     | 'eth_chainId'
     | 'eth_getBalance'
+    | 'eth_getCode'
+    | 'eth_getTransactionCount'
     | 'eth_call'
     | 'eth_estimateGas'
     | 'eth_gasPrice'

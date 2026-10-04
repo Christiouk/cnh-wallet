@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { useSendTransaction } from '@privy-io/react-auth';
+import { getAccessToken, useSendTransaction } from '@privy-io/react-auth';
 import { formatUnits } from 'viem';
 import { useEmbeddedWallets } from '@/hooks/useEmbeddedWallets';
 import { CURATED_TOKENS } from '@/lib/tokens';
@@ -14,11 +14,17 @@ import Modal from './Modal';
 import AssetIcon from './ui/AssetIcon';
 import type { TokenBalance } from '@/lib/tokens';
 import TransferStatus, { friendlyError } from './ui/TransferStatus';
+import { validationTransaction, type ValidationSigning } from '@/lib/wallet/send-validation';
+
+async function sendHeaders() {
+  const token = await getAccessToken();
+  return { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+}
 
 async function readSend(input: object, signal?: AbortSignal) {
   const response = await fetch('/api/send', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: await sendHeaders(),
     body: JSON.stringify(input),
     signal,
   });
@@ -40,15 +46,20 @@ export default function SendModal({
   const { sendTransaction } = useSendTransaction();
   const sender = evm.status === 'ready' ? evm.wallet.address : '';
   const [enabled, setEnabled] = useState(false);
+  const [validationOnly, setValidationOnly] = useState(false);
   useEffect(() => {
     setEnabled(false);
+    setValidationOnly(false);
     if (!isOpen) return;
     const controller = new AbortController();
-    fetch('/api/send', { cache: 'no-store', signal: controller.signal })
+    sendHeaders().then(headers => fetch('/api/send', { headers, cache: 'no-store', signal: controller.signal }))
       .then(async (response) => {
         if (!response.ok) return;
         const config = await response.json();
-        if (!controller.signal.aborted) setEnabled(config.send === true);
+        if (!controller.signal.aborted) {
+          setValidationOnly(config.validation === true);
+          setEnabled(config.send === true);
+        }
       })
       .catch(() => {});
     return () => controller.abort();
@@ -68,6 +79,7 @@ export default function SendModal({
       identity={`${user?.id}:${sender}`}
       sendTransaction={sendTransaction}
       read={readSend}
+      validationOnly={validationOnly}
     />
   );
 }
@@ -79,6 +91,7 @@ export function EthereumSend({
   identity,
   sendTransaction,
   read = readSend,
+  validationOnly = false,
 }: {
   isOpen: boolean;
   onClose(): void;
@@ -87,6 +100,7 @@ export function EthereumSend({
   identity: string;
   sendTransaction: Parameters<typeof submitSend>[1];
   read?: typeof readSend;
+  validationOnly?: boolean;
 }) {
   const currentIdentity = useRef(identity);
   currentIdentity.current = identity;
@@ -104,6 +118,7 @@ export function EthereumSend({
   const [intent, setIntent] = useState<SendInput | null>(null);
   const [stage, setStage] = useState<SendStage | 'form'>('form');
   const [cost, setCost] = useState('');
+  const [validation, setValidation] = useState<ValidationSigning | undefined>();
   const [hash, setHash] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -162,6 +177,9 @@ export function EthereumSend({
       if (!alive.current || currentIdentity.current !== scope) return;
       if (!/^\d+$/.test(preview.estimatedNetworkCost) || preview.chainId !== 1)
         throw new Error('Invalid network estimate');
+      if (validationOnly && !preview.validation) throw new Error('Validation access is unavailable');
+      if (preview.validation) validationTransaction(input, preview.validation);
+      setValidation(preview.validation);
       setCost(preview.estimatedNetworkCost);
       setIntent(input);
       setStage('review');
@@ -186,6 +204,14 @@ export function EthereumSend({
       if (!alive.current || currentIdentity.current !== scope) return;
       if (!/^\d+$/.test(preview.estimatedNetworkCost) || preview.chainId !== 1)
         throw new Error('Invalid network estimate');
+      if ((validationOnly || validation) && !preview.validation)
+        throw new Error('Validation access changed. Stop and review');
+      if (preview.validation) {
+        validationTransaction(intent, preview.validation);
+        if (validation && (preview.validation.nonce !== validation.nonce ||
+            preview.validation.expiresAt !== validation.expiresAt))
+          throw new Error('Validation scope changed. Stop and review');
+      }
       if (BigInt(preview.estimatedNetworkCost) > BigInt(cost)) {
         setCost(preview.estimatedNetworkCost);
         setError(
@@ -194,7 +220,7 @@ export function EthereumSend({
         return;
       }
       setStage('requesting-signature');
-      const result = await submitSend(intent, sendTransaction);
+      const result = await submitSend(intent, sendTransaction, preview.validation);
       if (!alive.current) return;
       if (!/^0x[0-9a-f]{64}$/i.test(result.hash))
         throw new Error(
@@ -220,6 +246,7 @@ export function EthereumSend({
     setIntent(null);
     setHash('');
     setCost('');
+    setValidation(undefined);
     setAmount('');
     setRecipient('');
     setError('');
@@ -337,11 +364,12 @@ export function EthereumSend({
                 <dd>
                   {cost ? formatUnits(BigInt(cost), 18) : 'Unavailable'} ETH
                 </dd>
+                {validation && <><dt>Maximum approved network fee</dt><dd>0.000003 ETH</dd></>}
               </dl>
             )}
             <p className="text-xs text-surface-400">
               The full entered amount goes to the recipient. Ethereum network
-              cost is additional; the final cost is set when you sign.
+              cost is additional; {validation ? 'this validation request caps the fee before signing.' : 'the final cost is set when you sign.'}
             </p>
             {stage === 'review' && (
               <div className="flex gap-3">

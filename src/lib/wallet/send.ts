@@ -6,6 +6,7 @@ import {
   zeroAddress,
 } from 'viem';
 import { CURATED_TOKENS } from '../tokens';
+import { validationTransaction, type ValidationSigning } from './send-validation';
 export type SendInput = {
   sender: string;
   recipient: string;
@@ -75,9 +76,14 @@ export function receiptStage(receipt: unknown, hash: string): SendStage {
 export async function submitSend(
   input: SendInput,
   send: (
-    tx: ReturnType<typeof buildSend>['transaction'],
-    options: { address: string },
+    tx: ReturnType<typeof buildSend>['transaction'] & Partial<ReturnType<typeof validationTransaction>>,
+    options: { address: string; uiOptions?: { showWalletUIs: boolean } },
   ) => Promise<{ hash: string }>,
+  validation?: ValidationSigning,
 ) {
+  if (validation) return send(
+    { ...buildSend(input).transaction, ...validationTransaction(input, validation) },
+    { address: input.sender, uiOptions: { showWalletUIs: true } },
+  );
   return send(buildSend(input).transaction, { address: input.sender });
 }

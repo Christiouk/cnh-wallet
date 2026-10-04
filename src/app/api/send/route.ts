@@ -7,11 +7,23 @@ import {
   type SendInput,
 } from '../../../lib/wallet/send';
 import { CURATED_TOKENS } from '../../../lib/tokens';
+import { ownerSendValidation } from '../../../lib/server/ethereum-send-access';
+import { VALIDATION_AMOUNT, VALIDATION_MAX_FEE } from '../../../lib/wallet/send-validation';
 export const dynamic = 'force-dynamic';
 // Server-only, opt-in release gate. Never infer readiness from a browser flag.
-export async function GET() {
+export async function GET(request: Request) {
+  let send = process.env.A3_ETHEREUM_SEND_ENABLED === 'true';
+  let validation = false;
+  if (!send) {
+    try {
+      guard(request, 'send-access', 60);
+      await ownerSendValidation(request);
+      send = true;
+      validation = true;
+    } catch { /* Unauthenticated callers never learn the validation identity. */ }
+  }
   return NextResponse.json(
-    { send: process.env.A3_ETHEREUM_SEND_ENABLED === 'true' },
+    { send, ...(validation ? { validation: true } : {}) },
     { headers: { 'Cache-Control': 'no-store' } },
   );
 }
@@ -33,8 +45,8 @@ export async function POST(request: Request) {
         { headers: { 'Cache-Control': 'no-store' } },
       );
     }
-    if (process.env.A3_ETHEREUM_SEND_ENABLED !== 'true')
-      throw new ApiError(503, 'SEND_DISABLED', 'Ethereum sending awaits final validation');
+    const validation = process.env.A3_ETHEREUM_SEND_ENABLED !== 'true'
+      ? await ownerSendValidation(request) : null;
     keys(input, ['action', 'sender', 'recipient', 'symbol', 'amount']);
     if (
       input.action !== 'preview' ||
@@ -50,6 +62,19 @@ export async function POST(request: Request) {
       throw new ApiError(400, 'INVALID_TRANSFER', (e as Error).message);
     }
     await mainnet();
+    if (validation) {
+      if (input.symbol !== 'ETH' || input.amount !== VALIDATION_AMOUNT ||
+          String(input.sender).toLowerCase() !== validation.address.toLowerCase() ||
+          String(input.recipient).toLowerCase() !== validation.address.toLowerCase())
+        throw new ApiError(403, 'VALIDATION_INTENT_CHANGED', 'Only the approved native ETH self-transfer is available');
+      const [code, latest, pending] = await Promise.all([
+        rpc('eth_getCode', [validation.address, 'latest']),
+        rpc('eth_getTransactionCount', [validation.address, 'latest']).then(quantity),
+        rpc('eth_getTransactionCount', [validation.address, 'pending']).then(quantity),
+      ]);
+      if (code !== '0x' || latest !== BigInt(validation.nonce) || pending !== latest)
+        throw new ApiError(409, 'VALIDATION_STATE_CHANGED', 'Wallet state changed. Stop and verify the existing transaction');
+    }
     const { token, units, transaction } = transfer;
     const tx = {
       from: input.sender,
@@ -69,6 +94,9 @@ export async function POST(request: Request) {
       throw new ApiError(502, 'INVALID_GAS', 'Network cost unavailable');
     const estimatedNetworkCost =
       (gas * price * BigInt(120) + BigInt(99)) / BigInt(100);
+    const validationGasPrice = (price * BigInt(120) + BigInt(99)) / BigInt(100);
+    if (validation && (gas !== BigInt(21000) || gas * validationGasPrice > VALIDATION_MAX_FEE))
+      throw new ApiError(409, 'VALIDATION_FEE_EXCEEDED', 'Network cost exceeds the approved validation limit');
     if (asset < units)
       throw new ApiError(
         400,
@@ -91,7 +119,12 @@ export async function POST(request: Request) {
         );
     }
     return NextResponse.json(
-      { estimatedNetworkCost: estimatedNetworkCost.toString(), chainId: 1 },
+      { estimatedNetworkCost: (validation ? gas * validationGasPrice : estimatedNetworkCost).toString(), chainId: 1,
+        ...(validation ? { validation: {
+          gasLimit: gas.toString(), gasPrice: validationGasPrice.toString(),
+          nonce: validation.nonce, expiresAt: validation.expiresAt,
+        } } : {}),
+      },
       { headers: { 'Cache-Control': 'no-store' } },
     );
   } catch (e) {

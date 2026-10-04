@@ -21,6 +21,7 @@ Module._load = function (id, parent, isMain) {
     };
   if (id === '@privy-io/react-auth')
     return {
+      getAccessToken: async () => 'synthetic-test-token',
       useSendTransaction: () => ({
         sendTransaction: (tx, options) => {
           signCalls.push({ tx, options });
@@ -46,7 +47,33 @@ Module._load = function (id, parent, isMain) {
   return originalLoad.call(this, id, parent, isMain);
 };
 const Send = require('../.test-build/src/components/SendModal').default;
+const EthereumSend = require('../.test-build/src/components/SendModal').EthereumSend;
 Module._load = originalLoad;
+test('owner validation cannot sign after access disappears or a fee above the approved cap is returned', async () => {
+  const originalSigns = signCalls.length;
+  for (const changed of [undefined, { gasLimit: '21000', gasPrice: '142857143', nonce: 0, expiresAt: Date.now() + 60000 }]) {
+    let calls = 0, root;
+    const approved = { gasLimit: '21000', gasPrice: '60000000', nonce: 0, expiresAt: Date.now() + 60000 };
+    const read = async () => ({ chainId: 1, estimatedNetworkCost: '1260000000000', validation: ++calls === 1 ? approved : changed });
+    const button = label => root.root.findAllByType('button').find(b => b.children.join('') === label);
+    try {
+      await act(async () => { root = create(React.createElement(EthereumSend, {
+        isOpen: true, onClose() {}, sender, identity: 'synthetic', validationOnly: true,
+        read, sendTransaction: async () => { signCalls.push('unexpected'); return { hash }; },
+      })); });
+      await act(async () => {
+        const inputs = root.root.findAllByType('input');
+        inputs[0].props.onChange({ target: { value: sender } });
+        inputs[1].props.onChange({ target: { value: '0.000001' } });
+      });
+      await act(async () => { await button('Review transfer').props.onClick(); });
+      assert.match(JSON.stringify(root.toJSON()), /0.000003 ETH/);
+      await act(async () => { await button('Confirm and sign').props.onClick(); });
+      assert.equal(signCalls.length, originalSigns);
+      assert.match(JSON.stringify(root.toJSON()), /could not be completed/);
+    } finally { if (root) await act(async () => root.unmount()); }
+  }
+});
 test('Send UI moves review → signature → submitted → confirming → receipt-confirmed without duplicate signing', async () => {
   const originalFetch = global.fetch,
     originalSetTimeout = global.setTimeout,

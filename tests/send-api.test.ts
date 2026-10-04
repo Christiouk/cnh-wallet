@@ -106,7 +106,7 @@ test('Send release gate rejects preparation before provider calls; missing and m
     for (const flag of [undefined, '', 'false', 'TRUE', '1']) {
       if (flag === undefined) delete process.env.A3_ETHEREUM_SEND_ENABLED;
       else process.env.A3_ETHEREUM_SEND_ENABLED = flag;
-      const config = await GET();
+      const config = await GET(new Request('https://wallet.invalid/api/send'));
       assert.equal(config.headers.get('cache-control'), 'no-store');
       assert.deepEqual(await config.json(), { send: false });
       const response = await POST(request({ action: 'preview', sender, recipient, symbol: 'ETH', amount: '0.000001' }));
