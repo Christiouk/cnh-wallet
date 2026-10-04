@@ -94,14 +94,14 @@ test('submitted and confirming are not success; provider internals are not displ
     /SDK_SECRET|module\/file/,
   );
 });
-test('all three existing sign-in methods call only their assigned callback', async () => {
+test('Apple, device sign-in and email call only their assigned callback', async () => {
   const calls = [];
   let root;
   await act(async () => {
     root = create(
       React.createElement(LoginView, {
         onApple: () => calls.push('apple'),
-        onGoogle: () => calls.push('google'),
+        onDevice: () => calls.push('device'),
         onEmail: () => calls.push('email'),
       }),
     );
@@ -110,7 +110,7 @@ test('all three existing sign-in methods call only their assigned callback', asy
     for (const button of root.root.findAllByType('button'))
       button.props.onClick();
   });
-  assert.deepEqual(calls, ['apple', 'google', 'email']);
+  assert.deepEqual(calls, ['apple', 'device', 'email']);
   await act(async () => root.unmount());
 });
 test('account panel displays full addresses but no internal identity fields', () => {

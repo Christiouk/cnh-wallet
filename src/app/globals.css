@@ -1901,3 +1901,18 @@ img {
 .swap-direction { text-align: center; font-size: 24px; }
 
 .account-security summary { min-height: 44px; cursor: pointer; padding: 12px 0; }
+
+/* Authentication controls share the wallet's existing mobile touch targets. */
+.login-fallback summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.login-fallback[open] summary { margin-bottom: 8px; }
+.account-sign-in { margin: 24px 0; }
+.account-sign-in button { width: 100%; min-height: 48px; margin-top: 12px; }
+.account-sign-in p { margin-top: 12px; }

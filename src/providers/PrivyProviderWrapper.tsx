@@ -26,7 +26,7 @@ export default function PrivyProviderWrapper({
         preview
         onEmail={() => {}}
         onApple={() => {}}
-        onGoogle={() => {}}
+        onDevice={() => {}}
       />
     );
 
@@ -56,7 +56,7 @@ export default function PrivyProviderWrapper({
           logo: undefined,
           walletChainType: 'ethereum-only',
         },
-        loginMethods: ['email'],
+        loginMethods: ['apple', 'passkey', 'email'],
         embeddedWallets: {
           solana: { createOnLogin: 'off' },
           disableAutomaticMigration: true,

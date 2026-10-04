@@ -13,10 +13,12 @@ export type AccountDetails = {
 export function AccountPanel({
   account,
   onLogout,
+  signInMethods,
   inDialog = false,
 }: {
   account: AccountDetails;
   onLogout(): void;
+  signInMethods?: React.ReactNode;
   inDialog?: boolean;
 }) {
   const [notice, setNotice] = useState('');
@@ -63,6 +65,7 @@ export function AccountPanel({
           </div>
         ))}
       </div>
+      {signInMethods}
       <section className="account-security">
         <h3 className="settings-section-heading">Security</h3>
         <p>
@@ -124,6 +127,7 @@ export default function WalletShell({
   onNetworkChange,
   account,
   onLogout,
+  signInMethods,
   view,
   onViewChange,
   children,
@@ -132,6 +136,7 @@ export default function WalletShell({
   onNetworkChange(network: A3Network): void;
   account: AccountDetails;
   onLogout(): void;
+  signInMethods?: React.ReactNode;
   view: WalletView;
   onViewChange(view: WalletView): void;
   children: React.ReactNode;
@@ -164,7 +169,7 @@ export default function WalletShell({
           {view === 'settings' && (
             <section className="settings-page">
               <h1 className="sr-only">Settings</h1>
-              <AccountPanel account={account} onLogout={onLogout} />
+              <AccountPanel account={account} onLogout={onLogout} signInMethods={signInMethods} />
             </section>
           )}
           <div hidden={view === 'settings'}>{children}</div>
@@ -179,7 +184,7 @@ export default function WalletShell({
         </footer>
       </div>
       <Modal isOpen={open} onClose={() => setOpen(false)} title="Account">
-        <AccountPanel account={account} onLogout={onLogout} inDialog />
+        <AccountPanel account={account} onLogout={onLogout} signInMethods={signInMethods} inDialog />
       </Modal>
     </div>
   );

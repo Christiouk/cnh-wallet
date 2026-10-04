@@ -34,6 +34,7 @@ Module._load = function (id, parent, isMain) {
   if (id === '@privy-io/react-auth')
     return {
       usePrivy: () => ({ logout() {} }),
+      useLinkAccount: () => ({ linkApple() {}, linkPasskey() {} }),
       useSendTransaction: () => ({
         sendTransaction: async () => {
           throw new Error('No signing permitted in UI rendering test');

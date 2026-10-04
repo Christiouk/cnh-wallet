@@ -283,8 +283,8 @@ export default function Fixture() {
         <LoginView
           onEmail={() => setNotice('Email sign-in callback — fixture only')}
           onApple={() => setNotice('Apple sign-in callback — fixture only')}
-          onGoogle={() =>
-            setNotice('Google sign-in callback — fixture only')
+          onDevice={() =>
+            setNotice('Face ID / Touch ID sign-in callback — fixture only')
           }
         />
       ) : scenario === 'auth-loading' ? (

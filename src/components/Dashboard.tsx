@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { AccountSignIn, useAccountSignIn } from './AccountSignIn';
 import { usePrivy } from '@privy-io/react-auth';
 import { formatUnits } from 'viem';
 import { useEmbeddedWallets } from '@/hooks/useEmbeddedWallets';
@@ -26,6 +27,7 @@ export default function Dashboard({
   const [view, setView] = useState<WalletView>('wallet');
   const { user, evm, tron } = useEmbeddedWallets();
   const { logout } = usePrivy();
+  const signIn = useAccountSignIn();
   return (
     <WalletShell
       network={network}
@@ -41,6 +43,7 @@ export default function Dashboard({
         tron: tron?.status === 'ready' ? tron.wallet.address : undefined,
       }}
       onLogout={logout}
+      signInMethods={<AccountSignIn {...signIn} />}
     >
       {network === 'ethereum' ? (
         <EthereumDashboard key={user?.id} view={view} />

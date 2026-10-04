@@ -5,13 +5,19 @@ import { COMPANY } from '@/lib/constants';
 export function LoginView({
   onEmail,
   onApple,
-  onGoogle,
+  onDevice,
   preview = false,
+  deviceSupported = true,
+  busy = false,
+  message,
 }: {
   onEmail(): void;
   onApple(): void;
-  onGoogle(): void;
+  onDevice(): void;
   preview?: boolean;
+  deviceSupported?: boolean;
+  busy?: boolean;
+  message?: string;
 }) {
   return (
     <main className="login-page">
@@ -58,27 +64,30 @@ export function LoginView({
             <button
               className="btn-primary"
               onClick={onApple}
-              disabled={preview}
+              disabled={preview || busy}
             >
               Continue with Apple
             </button>
             <button
               className="btn-secondary"
-              onClick={onGoogle}
-              disabled={preview}
+              onClick={onDevice}
+              aria-describedby="device-sign-in-help"
+              disabled={preview || busy || !deviceSupported}
             >
-              Continue with Google
+              Use Face ID / Touch ID
             </button>
-            <div className="login-divider">
-              <span>or use your email</span>
-            </div>
-            <button
-              className="btn-secondary"
-              onClick={onEmail}
-              disabled={preview}
-            >
-              Continue with Email <span aria-hidden>↗</span>
-            </button>
+            <p id="device-sign-in-help" className="small muted">
+              {deviceSupported
+                ? 'Set up in Settings after signing in. Your device may use its screen lock instead.'
+                : 'Not available in this browser. You can still sign in with Apple or email.'}
+            </p>
+            <details className="login-fallback">
+              <summary>Other ways to sign in</summary>
+              <button className="btn-secondary" onClick={onEmail} disabled={preview}>
+                Continue with Email <span aria-hidden>↗</span>
+              </button>
+            </details>
+            {message && <p className="notice" role="alert">{message}</p>}
           </div>
           <p className="login-privacy">
             Authentication powered by Privy.
@@ -102,5 +111,5 @@ export function LoginView({
 }
 
 export function PreviewLogin() {
-  return <LoginView preview onEmail={() => {}} onApple={() => {}} onGoogle={() => {}} />;
+  return <LoginView preview onEmail={() => {}} onApple={() => {}} onDevice={() => {}} />;
 }
