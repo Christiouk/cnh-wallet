@@ -34,11 +34,13 @@ const { LoginView } = require('../.test-build/src/components/LoginView');
 const { AccountSignIn, useAccountSignIn } = require('../.test-build/src/components/AccountSignIn');
 Module._load = load;
 
-test('controlled sign-in cannot create users; unrestricted Apple is available when release restriction lifts', async () => {
+test('Production email signup ignores the legacy restriction while RC and deferred OAuth remain unchanged', async () => {
   const oldRc = process.env.NEXT_PUBLIC_A3_RC_CONTINUITY;
   const oldProd = process.env.NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY;
+  const oldPublic = process.env.NEXT_PUBLIC_A3_PUBLIC_ONBOARDING;
   try {
-    for (const [rc, prod] of [['true','false'],['false','true'],['false','false']]) {
+    for (const [rc, prod, publicOnboarding] of [['true','false','false'],['false','true','false'],['false','false','false'],['false','true','true']]) {
+      process.env.NEXT_PUBLIC_A3_PUBLIC_ONBOARDING = publicOnboarding;
       process.env.NEXT_PUBLIC_A3_RC_CONTINUITY = rc;
       process.env.NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY = prod;
       calls.length = 0;
@@ -51,12 +53,12 @@ test('controlled sign-in cannot create users; unrestricted Apple is available wh
       assert.deepEqual(calls, [
         ['apple', { provider: 'apple', disableSignup: existingOnly }],
         ['device-login'],
-        ['email', { loginMethods: ['email'], disableSignup: existingOnly }],
+        ['email', { loginMethods: ['email'], disableSignup: publicOnboarding === 'true' ? false : existingOnly }],
       ]);
       await act(async () => root.unmount());
     }
   } finally {
-    for (const [key, value] of [['NEXT_PUBLIC_A3_RC_CONTINUITY',oldRc],['NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY',oldProd]]) {
+    for (const [key, value] of [['NEXT_PUBLIC_A3_RC_CONTINUITY',oldRc],['NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY',oldProd],['NEXT_PUBLIC_A3_PUBLIC_ONBOARDING',oldPublic]]) {
       if (value === undefined) delete process.env[key]; else process.env[key] = value;
     }
   }

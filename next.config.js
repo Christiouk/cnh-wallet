@@ -13,6 +13,8 @@ const continuityPreviewCsp = "default-src 'self'; script-src 'self' 'unsafe-inli
 const nextConfig = {
   reactStrictMode: true,
   env: {
+    // Public email onboarding is enabled only in Production; RC continuity stays locked.
+    NEXT_PUBLIC_A3_PUBLIC_ONBOARDING: process.env.VERCEL_ENV === 'production' ? 'true' : 'false',
     NEXT_PUBLIC_A3_RC_PREVIEW_LOCKED: preview && !continuityPreview ? 'true' : 'false',
     NEXT_PUBLIC_A3_RC_CONTINUITY: continuityPreview ? 'true' : 'false',
     NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY: process.env.VERCEL_ENV === 'production' && process.env.A3_CONTROLLED_RELEASE === 'true' ? 'true' : 'false',

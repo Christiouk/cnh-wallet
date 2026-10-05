@@ -29,6 +29,8 @@ test('RC2 unlock requires Preview, exact branch, explicit opt-in and original Ap
     assert.doesNotMatch(locked.headers[0].headers.find(h => h.key === 'Content-Security-Policy').value, /privy/);
   }
   const production = config({ VERCEL_ENV: 'production' });
+  assert.equal(enabled.env.NEXT_PUBLIC_A3_PUBLIC_ONBOARDING, 'false');
+  assert.equal(production.env.NEXT_PUBLIC_A3_PUBLIC_ONBOARDING, 'true');
   assert.equal(production.env.NEXT_PUBLIC_A3_RC_CONTINUITY, 'false');
   assert.equal(production.env.NEXT_PUBLIC_A3_RC_PREVIEW_LOCKED, 'false');
   assert.equal(config({ VERCEL_ENV: 'production', A3_CONTROLLED_RELEASE: 'true' }).env.NEXT_PUBLIC_A3_EXISTING_ACCOUNT_ONLY, 'true');

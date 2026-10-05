@@ -61,7 +61,12 @@ export default function PrivyProviderWrapper({
           solana: { createOnLogin: 'off' },
           disableAutomaticMigration: true,
           ethereum: {
-            createOnLogin: 'off',
+            // SDK 'all-users' means all users MISSING an embedded EVM wallet,
+            // including external-wallet-only users. The SDK skips existing
+            // embedded wallets and never requests an additional wallet here.
+            createOnLogin: process.env.NEXT_PUBLIC_A3_PUBLIC_ONBOARDING === 'true'
+              ? 'all-users'
+              : 'off',
           },
         },
         defaultChain: ethereum,

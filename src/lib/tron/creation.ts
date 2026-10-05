@@ -1,3 +1,4 @@
+import { getWalletForChain } from '../wallet/selection';
 import {
   assertContinuity,
   identity,
@@ -25,6 +26,8 @@ export async function enableTron(
     if (selection.status === 'ready') return before;
     if (selection.status !== 'missing')
       throw new Error('Tron wallet selection requires verification');
+    if (getWalletForChain({ ready: true, authenticated: true, user: before }, 'ethereum').status !== 'ready')
+      throw new Error('Finish Ethereum wallet setup before enabling Tron.');
     if (port.attempted(expectedDid))
       throw new Error(
         'A Tron setup request was already made. Refresh to rediscover it; contact support if it remains unavailable.',

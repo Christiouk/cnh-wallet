@@ -58,7 +58,7 @@ export function LoginView({
           <p className="muted">
             {preview
               ? 'Release candidate preview. Sign-in is paused until existing-account continuity is verified. No wallet or financial operations are enabled here.'
-              : 'Sign in to access your existing account.'}
+              : 'Sign in or create your A3 account.'}
           </p>
           <div className="login-methods">
             <button

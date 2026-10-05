@@ -68,8 +68,14 @@ export async function tronUser(
       a.connector_type === 'embedded' &&
       ['privy', 'privy-v2'].includes(String(a.wallet_client_type)),
   );
-  if (!needsWallet && wallets.length === 0)
+  if (!needsWallet && wallets.length === 0) {
+    const evm = user.linked_accounts.filter(a => a.type === 'wallet'
+      && a.chain_type === 'ethereum' && a.connector_type === 'embedded'
+      && ['privy', 'privy-v2'].includes(String(a.wallet_client_type)));
+    if (evm.length !== 1 || !('address' in evm[0]) || !/^0x[0-9a-f]{40}$/i.test(evm[0].address))
+      throw new ApiError(409, 'EVM_WALLET_UNAVAILABLE', 'Finish Ethereum wallet setup before enabling Tron.');
     return { did, walletId: '', address: '' };
+  }
   if (wallets.length !== 1)
     throw new ApiError(
       409,

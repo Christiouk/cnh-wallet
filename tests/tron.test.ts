@@ -440,12 +440,13 @@ test('activity requires verified canonical transfer rows, genuine empty differs 
   ])
     await assert.rejects(readActivity(async () => result, OWNER.address));
 });
-test('creation and chain isolation are explicit in runtime adapters; no automatic EVM creation', () => {
+test('Tron creation stays explicit and isolated from Ethereum onboarding', () => {
   const provider = readFileSync(
     'src/providers/PrivyProviderWrapper.tsx',
     'utf8',
   );
-  assert.doesNotMatch(provider, /users-without-wallets|all-users/);
+  assert.match(provider, /NEXT_PUBLIC_A3_PUBLIC_ONBOARDING/);
+  assert.match(provider, /solana: \{ createOnLogin: 'off' \}/);
   assert.match(provider, /createOnLogin: 'off'/);
   const hook = readFileSync('src/hooks/useTronWallet.ts', 'utf8');
   assert.match(hook, /chainType: 'tron'/);
@@ -457,4 +458,20 @@ test('creation and chain isolation are explicit in runtime adapters; no automati
     readFileSync('src/components/SendModal.tsx', 'utf8'),
     /signRawHash|chainType: 'tron'/,
   );
+});
+
+test('Tron creation refuses missing or ambiguous Ethereum onboarding without creating or marking an attempt', async () => {
+  for (const accounts of [[], [evm, { ...evm, id: 'second-evm', address: '0x' + '2'.repeat(40) }]]) {
+    let calls = 0;
+    const snapshot = user(accounts);
+    const port: CreationPort = {
+      current: async () => snapshot,
+      create: async () => { calls++; return snapshot; },
+      attempted: () => false,
+      markAttempt: () => { calls++; },
+      lock: async (_did, action) => action(),
+    };
+    await assert.rejects(enableTron(port, OWNER.did, true), /Finish Ethereum wallet setup/);
+    assert.equal(calls, 0);
+  }
 });

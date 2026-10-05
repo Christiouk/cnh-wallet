@@ -26,7 +26,7 @@ export default function LoginScreen() {
       message={message}
       onEmail={() => {
         setMessage('');
-        login({ loginMethods: ['email'], disableSignup: existingOnly });
+        login({ loginMethods: ['email'], disableSignup: process.env.NEXT_PUBLIC_A3_PUBLIC_ONBOARDING === 'true' ? false : existingOnly });
       }}
       onApple={() => {
         setMessage('');
