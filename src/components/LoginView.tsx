@@ -1,4 +1,5 @@
 'use client';
+import { deferredAuthEnabled } from '@/lib/auth-release';
 import Image from 'next/image';
 import { COMPANY } from '@/lib/constants';
 
@@ -23,7 +24,7 @@ export function LoginView({
     <main className="login-page">
       <div className="login-top">
         <span>A3 WALLET</span>
-        <a href="https://www.morsands.com/support">Need help? ↗</a>
+        <a href="https://a3wallet.com/support">Need help? ↗</a>
       </div>
       <div className="login-layout">
         <section className="login-brand">
@@ -61,6 +62,7 @@ export function LoginView({
               : 'Sign in or create your A3 account.'}
           </p>
           <div className="login-methods">
+            {deferredAuthEnabled() ? <>
             <button
               className="btn-primary"
               onClick={onApple}
@@ -87,13 +89,16 @@ export function LoginView({
                 Continue with Email <span aria-hidden>↗</span>
               </button>
             </details>
+            </> : <button className="btn-primary" onClick={onEmail} disabled={preview || busy}>
+              Continue with Email <span aria-hidden>↗</span>
+            </button>}
             {message && <p className="notice" role="alert">{message}</p>}
           </div>
           <p className="login-privacy">
             Authentication powered by Privy.
             <br />
             <a
-              href="https://www.morsands.com/privacy"
+              href="https://a3wallet.com/privacy"
               target="_blank"
               rel="noopener noreferrer"
             >

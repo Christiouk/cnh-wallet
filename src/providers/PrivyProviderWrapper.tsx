@@ -1,4 +1,5 @@
 'use client';
+import { deferredAuthEnabled } from '@/lib/auth-release';
 
 import { PrivyProvider } from '@privy-io/react-auth';
 import { LoginView } from '@/components/LoginView';
@@ -56,7 +57,7 @@ export default function PrivyProviderWrapper({
           logo: undefined,
           walletChainType: 'ethereum-only',
         },
-        loginMethods: ['apple', 'passkey', 'email'],
+        loginMethods: deferredAuthEnabled() ? ['apple', 'passkey', 'email'] : ['email'],
         embeddedWallets: {
           solana: { createOnLogin: 'off' },
           disableAutomaticMigration: true,

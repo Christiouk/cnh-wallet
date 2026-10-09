@@ -4,6 +4,7 @@ const Module = require('node:module');
 const load = Module._load;
 const Provider = () => null;
 Module._load = function(id, parent, main) {
+  if (id === '@/lib/auth-release') return load.call(this, require('node:path').resolve(__dirname, '../.test-build/src/lib/auth-release'), parent, main);
   if (id === '@privy-io/react-auth') return { PrivyProvider: Provider };
   if (id === '@/components/LoginView') return { LoginView: () => null };
   return load.call(this, id, parent, main);
@@ -21,6 +22,7 @@ test('Production uses SDK missing-embedded-wallet creation without migration, ex
       const view = Wrapper({ children: null });
       assert.equal(view.type, Provider);
       assert.equal(view.props.appId, 'synthetic-app');
+      assert.deepEqual(view.props.config.loginMethods, ['email']);
       assert.deepEqual(view.props.config.embeddedWallets, {
         ethereum: { createOnLogin: enabled === 'true' ? 'all-users' : 'off' },
         solana: { createOnLogin: 'off' },

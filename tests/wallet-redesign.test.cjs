@@ -94,7 +94,8 @@ test('submitted and confirming are not success; provider internals are not displ
     /SDK_SECRET|module\/file/,
   );
 });
-test('Apple, device sign-in and email call only their assigned callback', async () => {
+test('preserved post-launch Apple, device sign-in and email call only their assigned callback', async () => {
+  process.env.NEXT_PUBLIC_A3_POST01_AUTH_ENABLED = 'true';
   const calls = [];
   let root;
   await act(async () => {
@@ -111,6 +112,7 @@ test('Apple, device sign-in and email call only their assigned callback', async 
       button.props.onClick();
   });
   assert.deepEqual(calls, ['apple', 'device', 'email']);
+  delete process.env.NEXT_PUBLIC_A3_POST01_AUTH_ENABLED;
   await act(async () => root.unmount());
 });
 test('account panel displays full addresses but no internal identity fields', () => {

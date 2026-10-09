@@ -1,3 +1,4 @@
+process.env.NEXT_PUBLIC_A3_POST01_AUTH_ENABLED = 'true';
 global.IS_REACT_ACT_ENVIRONMENT = true;
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
@@ -115,4 +116,34 @@ test('enrolment links only to the authenticated existing user and does nothing o
   props.onApple(); props.onDevice();
   assert.deepEqual(calls, [], 'signed-out state cannot link');
   await act(async () => root.unmount());
+});
+
+
+test('Release 1 exposes email only and blocks deferred auth callbacks', async () => {
+  delete process.env.NEXT_PUBLIC_A3_POST01_AUTH_ENABLED;
+  authenticated = true; supported = true; calls.length = 0;
+  let root;
+  try {
+    await act(async () => { root = create(React.createElement(Login)); });
+    const props = root.root.findByType(LoginView).props;
+    const html = renderToStaticMarkup(React.createElement(LoginView, props));
+    assert.match(html, /Continue with Email/);
+    assert.doesNotMatch(html, /Continue with Apple|Face ID|Touch ID|Other ways/);
+    await act(async () => { props.onApple(); props.onDevice(); });
+    assert.deepEqual(calls, []);
+    await act(async () => props.onEmail());
+    assert.equal(calls.length, 1);
+    assert.deepEqual(calls[0][1].loginMethods, ['email']);
+    await act(async () => root.unmount());
+    calls.length = 0;
+    function Harness() { return React.createElement(AccountSignIn, useAccountSignIn()); }
+    await act(async () => { root = create(React.createElement(Harness)); });
+    const signIn = root.root.findByType(AccountSignIn).props;
+    assert.equal(root.toJSON(), null);
+    await act(async () => { signIn.onApple(); signIn.onDevice(); });
+    assert.deepEqual(calls, []);
+  } finally {
+    if (root) await act(async () => root.unmount());
+    process.env.NEXT_PUBLIC_A3_POST01_AUTH_ENABLED = 'true';
+  }
 });

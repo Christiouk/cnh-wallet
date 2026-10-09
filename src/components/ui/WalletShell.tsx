@@ -82,21 +82,21 @@ export function AccountPanel({
         }
       >
         <a
-          href="https://www.morsands.com/support"
+          href="https://a3wallet.com/support"
           target="_blank"
           rel="noopener noreferrer"
         >
           Help & support <span aria-hidden>↗</span>
         </a>
         <a
-          href="https://www.morsands.com/privacy"
+          href="https://a3wallet.com/privacy"
           target="_blank"
           rel="noopener noreferrer"
         >
           Privacy policy <span aria-hidden>↗</span>
         </a>
         <a
-          href="https://www.morsands.com/account-deletion"
+          href="https://a3wallet.com/account-deletion"
           target="_blank"
           rel="noopener noreferrer"
         >

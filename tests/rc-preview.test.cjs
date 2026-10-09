@@ -44,7 +44,7 @@ test('RC Preview renders disabled login without initializing Privy or the wallet
       ),
     );
     assert.match(html, /Release candidate preview/);
-    assert.equal((html.match(/disabled=""/g) || []).length, 3);
+    assert.equal((html.match(/disabled=""/g) || []).length, 1);
     assert.doesNotMatch(html, /SHOULD_NOT_RENDER/);
   } finally {
     if (old === undefined)

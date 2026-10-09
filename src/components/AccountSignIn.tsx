@@ -1,4 +1,5 @@
 'use client';
+import { deferredAuthEnabled } from '@/lib/auth-release';
 import { useState } from 'react';
 import { useLinkAccount, usePrivy } from '@privy-io/react-auth';
 import { useDeviceAuthentication } from '@/hooks/useDeviceAuthentication';
@@ -14,7 +15,7 @@ export function useAccountSignIn() {
   });
   const appleLinked = Boolean(user?.linkedAccounts.some(a => a.type === 'apple_oauth'));
   const deviceLinked = Boolean(user?.linkedAccounts.some(a => a.type === 'passkey'));
-  const enabled = ready && authenticated && Boolean(user);
+  const enabled = deferredAuthEnabled() && ready && authenticated && Boolean(user);
   return {
     appleLinked, deviceLinked, supported, message, enabled,
     onApple() {
@@ -33,6 +34,7 @@ export function useAccountSignIn() {
 export function AccountSignIn({
   appleLinked, deviceLinked, supported, message, enabled, onApple, onDevice,
 }: ReturnType<typeof useAccountSignIn>) {
+  if (!deferredAuthEnabled()) return null;
   return (
     <section className="account-sign-in" aria-label="Sign-in methods">
       <h3 className="settings-section-heading">Sign-in methods</h3>

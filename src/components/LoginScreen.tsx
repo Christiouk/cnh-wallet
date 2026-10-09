@@ -1,4 +1,5 @@
 'use client';
+import { deferredAuthEnabled } from '@/lib/auth-release';
 
 import { useState } from 'react';
 import { usePrivy, useLoginWithOAuth, useLoginWithPasskey } from '@privy-io/react-auth';
@@ -29,11 +30,12 @@ export default function LoginScreen() {
         login({ loginMethods: ['email'], disableSignup: process.env.NEXT_PUBLIC_A3_PUBLIC_ONBOARDING === 'true' ? false : existingOnly });
       }}
       onApple={() => {
+        if (!deferredAuthEnabled()) return;
         setMessage('');
         void initOAuth({ provider: 'apple', disableSignup: existingOnly }).catch(appleError);
       }}
       onDevice={() => {
-        if (!supported || busy) return;
+        if (!deferredAuthEnabled() || !supported || busy) return;
         setMessage('');
         // Login only. Enrolment belongs to the authenticated Settings flow.
         void loginWithPasskey().catch(deviceError);
