@@ -108,7 +108,7 @@ export function AccountPanel({
           <summary className="settings-section-heading">Request account deletion</summary>
           <p>Deleting your account can affect access to your embedded wallets. No account, wallet or funds will be changed by opening this request.</p>
           <p>Email support@a3wallet.com from your account email, if available. We must verify ownership and explain wallet-access consequences before you confirm. Never include private keys, recovery phrases or verification codes.</p>
-          <p>Final deletion is not automated and awaits a verified account-deletion and wallet-access procedure. A completion time is not yet confirmed.</p>
+          <p>Final deletion is not automated. We aim to complete requests within 30 calendar days of receipt, or any shorter legally required period, and send confirmation when complete. We will explain any lawful extension before that period ends.</p>
           <a className="btn-secondary" href="mailto:support@a3wallet.com?subject=A3%20account%20deletion%20request">Prepare deletion request email</a>
           <p className="small">Opening an email draft does not submit a request. Send it yourself, or email support@a3wallet.com directly if no email app opens.</p>
         </details>
