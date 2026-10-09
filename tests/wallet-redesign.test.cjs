@@ -240,7 +240,7 @@ test('Tron resource notice explains network cost, retains details and never impl
 test('deletion initiation is explicit, contains no identity in its URL and never claims completion', () => {
   const html = render(AccountPanel, { account: { email: 'owner@example.invalid', ethereum: '0x1111111111111111111111111111111111111111' }, onLogout() {} });
   assert.match(html, /Request account deletion/);
-  assert.match(html, /mailto:privacy@morsands.com\?subject=A3%20account%20deletion%20request/);
+  assert.match(html, /mailto:support@a3wallet.com\?subject=A3%20account%20deletion%20request/);
   assert.match(html, /does not submit a request/);
   assert.match(html, /Final deletion is not automated/);
   assert.doesNotMatch(html, /href="[^"]*(owner%40|owner@example|0x1111)/);
